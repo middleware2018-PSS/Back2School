@@ -2,7 +2,7 @@ development:
   dialect: postgres
   database: back2_school_development
   user: postgres
-  password: postgres
+  password: password
   host: 127.0.0.1
   pool: 5
 

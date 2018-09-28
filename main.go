@@ -12,6 +12,17 @@ import (
 // All we ask is that, at some point, you make sure to
 // call `app.Serve()`, unless you don't want to start your
 // application that is. :)
+
+// @title Back2School API
+// @version 1.0
+// @description These are a School management system's API .
+// @termsOfService http://swagger.io/terms/
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @host localhost:3000
 func main() {
 	app := actions.App()
 	if err := app.Serve(); err != nil {

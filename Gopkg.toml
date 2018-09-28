@@ -1,4 +1,6 @@
-
+[[constraint]]
+  name = "github.com/gobuffalo/buffalo"
+  version = "v0.13.0-beta.2"
 
 [prune]
   go-tests = true
