@@ -7,6 +7,7 @@ import (
 	contenttype "github.com/gobuffalo/mw-contenttype"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
+	tokenauth "github.com/gobuffalo/mw-tokenauth"
 	"github.com/unrolled/secure"
 
 	"github.com/gobuffalo/x/sessions"
@@ -49,7 +50,12 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
-		app.Resource("/accounts", AccountsResource{})
+		api := app.Group("/api/v1")
+
+		// JWT Auth middleware
+		api.Use(tokenauth.New(tokenauth.Options{}))
+
+		api.Resource("/users", UsersResource{})
 	}
 
 	return app
