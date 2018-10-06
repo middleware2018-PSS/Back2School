@@ -1,8 +1,15 @@
 package actions
 
 import (
+	"fmt"
+	"strings"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/pkg/errors"
 )
@@ -202,4 +209,46 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 
 	// Redirect to the users index page
 	return c.Render(200, r.Auto(c, user))
+}
+
+// UsersLogin default implementation.
+func UsersLogin(c buffalo.Context) error {
+	user := &models.User{}
+	cred := &models.Credential{}
+
+	// Bind the credential to the JSON payload
+	if err := c.Bind(cred); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Fetch the user from the DB
+	tx := c.Value("tx").(*pop.Connection)
+	tx.Where("email = ?", strings.ToLower(cred.Email)).First(user)
+	fmt.Println(user)
+
+	// Check email and password for authorization
+	err := user.Authorize(tx, cred)
+	if err != nil {
+		c.Set("user", user)
+		verrs := validate.NewErrors()
+		verrs.Add("Login", "Invalid email or password.")
+		c.Set("errors", verrs.Errors)
+		return c.Render(422, r.Auto(c, verrs))
+	}
+
+	// Create claims
+	claims := jwt.MapClaims{}
+	claims["Id"] = user.ID.String()
+	claims["exp"] = time.Now().Add(oneWeek()).Unix()
+	claims["role"] = user.Role
+	// Generate token
+	secretKey := envy.Get("JWT_SECRET", "secret")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(secretKey))
+
+	return c.Render(200, r.Auto(c, tokenString))
+}
+
+func oneWeek() time.Duration {
+	return 7 * 24 * time.Hour
 }

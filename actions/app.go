@@ -53,8 +53,11 @@ func App() *buffalo.App {
 		api := app.Group("/api/v1")
 
 		// JWT Auth middleware
-		api.Use(tokenauth.New(tokenauth.Options{}))
+		TokenAuth := tokenauth.New(tokenauth.Options{})
+		api.Use(TokenAuth)
+		api.Middleware.Skip(TokenAuth, UsersLogin)
 
+		api.POST("/login", UsersLogin)
 		api.Resource("/users", UsersResource{})
 	}
 
