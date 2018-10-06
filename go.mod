@@ -1,0 +1,97 @@
+module github.com/middleware2018-PSS/back2_school
+
+require (
+	dmitri.shuralyov.com/text/kebabcase v0.0.0-20180217051803-40e40b42552a
+	github.com/BurntSushi/toml v0.3.1
+	github.com/PuerkitoBio/purell v1.1.0
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f
+	github.com/cockroachdb/cockroach-go v0.0.0-20180212155653-59c0560478b7
+	github.com/davecgh/go-spew v1.1.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d
+	github.com/fatih/color v1.7.0
+	github.com/fatih/structs v1.0.0
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/go-openapi/jsonpointer v0.0.0-20180322222829-3a0015ad55fa
+	github.com/go-openapi/jsonreference v0.0.0-20180322222742-3fb327e6747d
+	github.com/go-openapi/spec v0.0.0-20180801175345-384415f06ee2
+	github.com/go-openapi/swag v0.0.0-20180715190254-becd2f08beaf
+	github.com/go-sql-driver/mysql v1.4.0
+	github.com/gobuffalo/buffalo v0.13.0-beta.2
+	github.com/gobuffalo/buffalo-plugins v0.0.0-20180928194818-6ca7684eb375
+	github.com/gobuffalo/buffalo-pop v1.0.1
+	github.com/gobuffalo/envy v1.6.4
+	github.com/gobuffalo/events v1.0.2
+	github.com/gobuffalo/fizz v1.0.12
+	github.com/gobuffalo/genny v0.0.0-20181001150720-e845e88e8b67 // indirect
+	github.com/gobuffalo/github_flavored_markdown v1.0.5
+	github.com/gobuffalo/makr v1.1.5
+	github.com/gobuffalo/mapi v1.0.0
+	github.com/gobuffalo/mw-contenttype v0.0.0-20180802152300-74f5a47f4d56
+	github.com/gobuffalo/mw-csrf v0.0.0-20180802151833-446ff26e108b
+	github.com/gobuffalo/mw-forcessl v0.0.0-20180802152810-73921ae7a130
+	github.com/gobuffalo/mw-paramlogger v0.0.0-20180917205648-9e0d9b7760c0
+	github.com/gobuffalo/mw-tokenauth v0.0.0-20180802152212-d09751da96e0
+	github.com/gobuffalo/packr v1.13.7
+	github.com/gobuffalo/plush v3.7.16+incompatible
+	github.com/gobuffalo/pop v4.7.3+incompatible
+	github.com/gobuffalo/release v1.0.33 // indirect
+	github.com/gobuffalo/suite v2.1.6+incompatible
+	github.com/gobuffalo/tags v2.0.11+incompatible
+	github.com/gobuffalo/uuid v2.0.3+incompatible
+	github.com/gobuffalo/validate v2.0.3+incompatible
+	github.com/gobuffalo/x v0.0.0-20180930144534-b01151fcafd9
+	github.com/gorilla/context v1.1.1
+	github.com/gorilla/mux v1.6.2
+	github.com/gorilla/securecookie v1.1.1
+	github.com/gorilla/sessions v1.1.2
+	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
+	github.com/joho/godotenv v1.3.0
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
+	github.com/konsorten/go-windows-terminal-sequences v0.0.0-20180402223658-b729f2633dfe
+	github.com/kr/pty v1.1.3 // indirect
+	github.com/lib/pq v1.0.0
+	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329
+	github.com/markbates/going v1.0.2
+	github.com/markbates/grift v1.0.4
+	github.com/markbates/hmax v1.0.0
+	github.com/markbates/inflect v1.0.1
+	github.com/markbates/oncer v0.0.0-20180924034138-723ad0170a46
+	github.com/markbates/refresh v1.4.8
+	github.com/markbates/sigtx v1.0.0
+	github.com/markbates/willie v1.0.7
+	github.com/mattn/go-colorable v0.0.9
+	github.com/mattn/go-isatty v0.0.4
+	github.com/mattn/go-sqlite3 v1.9.0
+	github.com/microcosm-cc/bluemonday v1.0.1
+	github.com/mitchellh/go-homedir v1.0.0
+	github.com/mitchellh/mapstructure v1.1.1 // indirect
+	github.com/monoculum/formam v0.0.0-20180901015400-4e68be1d79ba
+	github.com/pkg/errors v0.8.0
+	github.com/pmezard/go-difflib v1.0.0
+	github.com/rs/cors v1.5.0
+	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
+	github.com/sergi/go-diff v1.0.0
+	github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e
+	github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041
+	github.com/shurcooL/graphql v0.0.0-20180924043259-e4a3a37e6d42
+	github.com/shurcooL/highlight_diff v0.0.0-20170515013008-09bb4053de1b
+	github.com/shurcooL/highlight_go v0.0.0-20170515013102-78fb10f4a5f8
+	github.com/shurcooL/octicon v0.0.0-20180602230221-c42b0e3b24d9
+	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95
+	github.com/sirupsen/logrus v1.1.0
+	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
+	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e
+	github.com/stretchr/testify v1.2.2
+	github.com/swaggo/swag v1.3.2
+	github.com/unrolled/secure v0.0.0-20180918153822-f340ee86eb8b
+	golang.org/x/crypto v0.0.0-20180927165925-5295e8364332
+	golang.org/x/net v0.0.0-20180926154720-4dfa2610cdf3
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20180928133829-e4b3c5e90611
+	golang.org/x/text v0.3.0
+	golang.org/x/tools v0.0.0-20181001162950-8deeabbe2e53 // indirect
+	google.golang.org/appengine v1.2.0
+	gopkg.in/yaml.v2 v2.2.1
+)
