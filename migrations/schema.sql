@@ -29,25 +29,22 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
 --
--- Name: accounts; Type: TABLE; Schema: public; Owner: postgres
+-- Name: role; Type: TYPE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.accounts (
-    id uuid NOT NULL,
-    username character varying(255) NOT NULL,
-    password character varying(255) NOT NULL,
-    kind character varying(255) NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+CREATE TYPE public.role AS ENUM (
+    'admin',
+    'teacher',
+    'parent'
 );
 
 
-ALTER TABLE public.accounts OWNER TO postgres;
+ALTER TYPE public.role OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
@@ -61,11 +58,29 @@ CREATE TABLE public.schema_migration (
 ALTER TABLE public.schema_migration OWNER TO postgres;
 
 --
--- Name: accounts accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.accounts
-    ADD CONSTRAINT accounts_pkey PRIMARY KEY (id);
+CREATE TABLE public.users (
+    id uuid NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    role public.role NOT NULL,
+    name character varying(255) NOT NULL,
+    surname character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
 --
@@ -73,6 +88,13 @@ ALTER TABLE ONLY public.accounts
 --
 
 CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USING btree (version);
+
+
+--
+-- Name: users_email_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
