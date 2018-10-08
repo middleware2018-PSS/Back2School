@@ -57,7 +57,7 @@ func App() *buffalo.App {
 		api.Use(TokenAuth)
 		api.Middleware.Skip(TokenAuth, UsersLogin)
 
-		api.POST("/login", UsersLogin)
+		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
 	}
 
