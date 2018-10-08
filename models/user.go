@@ -1,9 +1,7 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -13,6 +11,12 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type UserAuth struct {
+	User
+	Email            string `json:"-" db:"-"`
+	PasswordProvided string `json:"-" db:"-"`
+}
 
 type User struct {
 	ID        uuid.UUID `json:"id" db:"id"`
@@ -38,24 +42,6 @@ type Users []User
 func (u Users) String() string {
 	ju, _ := json.Marshal(u)
 	return string(ju)
-}
-
-// Authorize checks user's password for logging in
-func (u *User) Authorize(tx *pop.Connection, cred *Credential) error {
-	err := tx.Where("email = ?", strings.ToLower(u.Email)).First(u)
-	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
-			// couldn't find an user with that email address
-			return errors.New("User not found.")
-		}
-		return errors.WithStack(err)
-	}
-	// confirm that the given password matches the hashed password from the db
-	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(cred.Password))
-	if err != nil {
-		return errors.New("Invalid password.")
-	}
-	return nil
 }
 
 // CALLBACKS //
