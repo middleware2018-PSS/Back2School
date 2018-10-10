@@ -55,7 +55,7 @@ func App() *buffalo.App {
 		// JWT Auth middleware
 		TokenAuth := tokenauth.New(tokenauth.Options{})
 		api.Use(TokenAuth)
-		api.Middleware.Skip(TokenAuth, UsersLogin)
+		api.Middleware.Skip(TokenAuth, UsersAuth)
 
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
