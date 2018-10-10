@@ -2,7 +2,6 @@ package actions
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 	"time"
 
@@ -39,7 +38,6 @@ func UsersAuth(c buffalo.Context) error {
 	// Fetch the user from the DB with the email
 	tx := c.Value("tx").(*pop.Connection)
 	err := tx.Where("email = ?", strings.ToLower(userauth.Email)).First(&userauth.User)
-	fmt.Println(user)
 
 	if err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {
