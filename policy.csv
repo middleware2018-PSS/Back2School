@@ -1,0 +1,4 @@
+p, admin, /*, *
+p, anonymous, /api/v1/login/, *
+p, teacher, /teachers/*, *
+p, parent, /parents/*, *

@@ -1,6 +1,9 @@
 package actions
 
 import (
+	"log"
+
+	"github.com/casbin/casbin"
 	"github.com/gobuffalo/buffalo"
 	popmw "github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -11,6 +14,7 @@ import (
 	"github.com/unrolled/secure"
 
 	"github.com/gobuffalo/x/sessions"
+	authorization "github.com/middleware2018-PSS/back2_school/middleware/authorization"
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/rs/cors"
 )
@@ -56,6 +60,15 @@ func App() *buffalo.App {
 		TokenAuth := tokenauth.New(tokenauth.Options{})
 		api.Use(TokenAuth)
 		api.Middleware.Skip(TokenAuth, UsersAuth)
+
+		// Setup casbin auth rules
+		authEnforcer, err := casbin.NewEnforcerSafe("./auth_model.conf", "./policy.csv")
+		if err != nil {
+			log.Fatal(err)
+		}
+		authorizer := authorization.New(authEnforcer)
+		api.Use(authorizer)
+		//api.Middleware.Skip(authorizer, UsersAuth)
 
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
