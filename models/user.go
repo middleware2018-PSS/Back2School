@@ -14,8 +14,8 @@ import (
 
 type UserAuth struct {
 	User
-	Email            string `json:"-" db:"-"`
-	PasswordProvided string `json:"-" db:"-"`
+	Email            string `json:"email" db:"-"`
+	PasswordProvided string `json:"password" db:"-"`
 }
 
 type User struct {
