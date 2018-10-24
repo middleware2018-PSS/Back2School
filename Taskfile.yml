@@ -1,0 +1,13 @@
+version: '2'
+
+tasks:
+  run-db:
+    cmds:
+      - sudo docker run -d --rm --name back2school-db -e POSTGRES_PASSWORD=postgres --network host postgres
+      - echo 'Wait some time to make sure that the db is properly initialized and is accepting connections'
+
+  init-db:
+    cmds:
+      - buffalo db create
+      - buffalo db migrate
+      - buffalo task db:seed
