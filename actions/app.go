@@ -73,8 +73,8 @@ func App() *buffalo.App {
 
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
-		app.Resource("/parents", ParentsResource{})
-		app.Resource("/teachers", TeachersResource{})
+		api.Resource("/parents", ParentsResource{})
+		api.Resource("/teachers", TeachersResource{})
 	}
 
 	return app
