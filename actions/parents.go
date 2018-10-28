@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -33,6 +37,7 @@ func (v ParentsResource) List(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
+	// Allocate an empty slice of Parents
 	parents := &models.Parents{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
@@ -47,7 +52,21 @@ func (v ParentsResource) List(c buffalo.Context) error {
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, parents))
+	// Convert the slice of parents to a slice of pointers to parents
+	// because Pop wants the former, jsonapi, the latter
+	parentsp := []*models.Parent{}
+	for i := 0; i < len(*parents); i++ {
+		parentsp = append(parentsp, &((*parents)[i]))
+	}
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, parentsp)
+	if err != nil {
+		log.Println("Problem marshalling parents")
+		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+	}
+
+	return c.Render(200, r.Func("application/json", customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one Parent. This function is mapped to
@@ -82,9 +101,16 @@ func (v ParentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Parent
 	parent := &models.Parent{}
 
-	// Bind parent to the html form elements
-	if err := c.Bind(parent); err != nil {
+	// Unmarshall the JSON payload into a Parent struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, parent); err != nil {
 		return errors.WithStack(err)
+	}
+
+	// Create the User associated to the Parent
+	user := &models.User{
+		Email:    parent.Email,
+		Password: parent.Password,
+		Role:     "parent",
 	}
 
 	// Get the DB connection from the context
@@ -93,8 +119,19 @@ func (v ParentsResource) Create(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
-	verrs, err := tx.ValidateAndCreate(parent)
+	// Store the user in the DB
+	verrs, err := tx.ValidateAndCreate(user)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	log.Printf("PRINT USER CREATED IN PARENT: %v", user)
+
+	// Add the User ID to the Parent
+	parent.UserID = user.ID
+
+	// Store the parent in the DB
+	verrs, err = tx.ValidateAndCreate(parent)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -108,11 +145,20 @@ func (v ParentsResource) Create(c buffalo.Context) error {
 		return c.Render(422, r.Auto(c, parent))
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Parent was created successfully")
+	// Clear the Password so that it's not returned in the response
+	parent.Password = ""
+	log.Printf("PRINT PARENT: %v", parent)
 
-	// and redirect to the parents index page
-	return c.Render(201, r.Auto(c, parent))
+	// If there are no errors return the Parent resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, parent)
+	if err != nil {
+		log.Println("Problem marshalling the Parent in Show()")
+		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Edit renders a edit form for a Parent. This function is

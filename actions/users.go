@@ -45,7 +45,8 @@ func (v UsersResource) List(c buffalo.Context) error {
 	q := tx.PaginateFromParams(c.Params())
 
 	// Retrieve all Users from the DB
-	if err := q.Select("id", "created_at", "updated_at", "email", "role").All(users); err != nil {
+	if err := q.Select("id", "created_at", "updated_at", "email", "role").
+		All(users); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -62,7 +63,7 @@ func (v UsersResource) List(c buffalo.Context) error {
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, usersp)
 	if err != nil {
-		log.Println("Problem marshalling")
+		log.Println("Problem marshalling users")
 		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
 	}
 
@@ -91,11 +92,12 @@ func (v UsersResource) Show(c buffalo.Context) error {
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, user)
 	if err != nil {
-		log.Println("Problem marshalling")
+		log.Println("Problem marshalling the User in Show()")
 		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
 	}
 
-	return c.Render(200, r.Func("application/json", customJSONRenderer(res.String())))
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Create adds a User to the DB. This function is mapped to the
@@ -104,7 +106,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	// Allocate an empty User
 	user := &models.User{}
 
-	// Unmarshall the JSON payload into a User
+	// Unmarshall the JSON payload into a User struct
 	if err := jsonapi.UnmarshalPayload(c.Request().Body, user); err != nil {
 		return errors.WithStack(err)
 	}

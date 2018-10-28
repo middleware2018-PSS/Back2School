@@ -28,8 +28,8 @@ type User struct {
 	Email     string    `json:"email" db:"email" jsonapi:"attr,email"`
 	Password  string    `json:"password" db:"password" jsonapi:"attr,password,omitempty"`
 	Role      string    `json:"role" db:"role" jsonapi:"attr,role"`
-	Parent    *Parent   `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent"`
-	Teacher   *Teacher  `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher"`
+	Parent    *Parent   `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent,omitempty"`
+	Teacher   *Teacher  `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher,omitempty"`
 }
 
 // String is not required by pop and may be deleted

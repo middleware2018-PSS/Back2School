@@ -2,8 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -11,12 +13,13 @@ import (
 )
 
 type Parent struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-	Email     string    `json:"email" db:"email"`
-	Name      string    `json:"name" db:"name"`
-	Surname   string    `json:"surname" db:"surname"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,parents"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
+	Email     string    `json:"email" db:"email" jsonapi:"attr,email"`
+	Password  string    `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
+	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
 	UserID    uuid.UUID `db:"user_id"`
 }
 
@@ -38,8 +41,17 @@ func (p Parents) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *Parent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.EmailIsPresent{Field: p.Email, Name: "Email", Message: "Mail is not in the right format."},
+		&validators.EmailIsPresent{Field: p.Email, Name: "Email",
+			Message: "Mail is not in the right format."},
+		//&validators.StringIsPresent{Field: p.Password, Name: "Passowrd"},
 		&validators.StringIsPresent{Field: p.Name, Name: "Name"},
 		&validators.StringIsPresent{Field: p.Surname, Name: "Surname"},
 	), nil
+}
+
+// JSONAPILinks implements the Linkable interface for a parent
+func (parent Parent) JSONAPILinks() *jsonapi.Links {
+	return &jsonapi.Links{
+		"self": fmt.Sprintf("http://%s/parents/%s", APIUrl, parent.ID.String()),
+	}
 }
