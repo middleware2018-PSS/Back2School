@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"log"
-
 	"github.com/casbin/casbin"
 	"github.com/gobuffalo/buffalo"
 	popmw "github.com/gobuffalo/buffalo-pop/pop/popmw"
@@ -11,6 +9,7 @@ import (
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	tokenauth "github.com/gobuffalo/mw-tokenauth"
+	"github.com/sirupsen/logrus"
 	"github.com/unrolled/secure"
 
 	"github.com/gobuffalo/x/sessions"
@@ -18,6 +17,8 @@ import (
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/rs/cors"
 )
+
+var log = logrus.New()
 
 // ENV is used to help switch settings based on where the
 // application is being run. Default is "development".
@@ -72,6 +73,8 @@ func App() *buffalo.App {
 
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
+		app.Resource("/parents", ParentsResource{})
+		app.Resource("/teachers", TeachersResource{})
 	}
 
 	return app
