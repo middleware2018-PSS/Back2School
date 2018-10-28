@@ -1,0 +1,11 @@
+{
+  "data": {
+    "type": "parents",
+    "attributes": {
+      "email": "abbie.williams@example.com",
+      "password": "password",
+      "name": "Abbie",
+      "surname": "Williams"
+    }
+  }
+}
