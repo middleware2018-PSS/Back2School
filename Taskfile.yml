@@ -11,3 +11,13 @@ tasks:
       - buffalo db create
       - buffalo db migrate
       - buffalo task db:seed
+
+  reset-db:
+    cmds:
+      - buffalo db reset
+      - buffalo db migrate
+      - buffalo task db:seed
+
+  psql:
+    cmds:
+      - sudo docker run --rm -it --network host -e COLUMNS="$(tput cols)" -e LINES="$(tput lines)" postgres psql -h localhost -U postgres
