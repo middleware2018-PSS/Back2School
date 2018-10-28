@@ -1,0 +1,9 @@
+create_table("parents") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("email", "string", {})
+	t.Column("name", "string", {})
+	t.Column("surname", "string", {})
+	t.Column("user_id", "uuid", {})
+}
+
+add_index("parents", "email", {"unique": true})

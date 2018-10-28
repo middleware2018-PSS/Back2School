@@ -1,0 +1,6 @@
+- id: "parent.created.success"
+  translation: "Parent was successfully created."
+- id: "parent.updated.success"
+  translation: "Parent was successfully updated."
+- id: "parent.destroyed.success"
+  translation: "Parent was successfully destroyed."
