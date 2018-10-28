@@ -1,0 +1,3 @@
+create_table("teachers") {
+	t.Column("id", "uuid", {"primary": true})
+}

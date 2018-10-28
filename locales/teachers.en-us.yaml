@@ -1,0 +1,6 @@
+- id: "teacher.created.success"
+  translation: "Teacher was successfully created."
+- id: "teacher.updated.success"
+  translation: "Teacher was successfully updated."
+- id: "teacher.destroyed.success"
+  translation: "Teacher was successfully destroyed."
