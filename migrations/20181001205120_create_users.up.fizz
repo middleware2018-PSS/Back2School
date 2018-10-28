@@ -3,8 +3,6 @@ create_table("users") {
 	t.Column("email", "string", {})
 	t.Column("password", "string", {})
 	t.Column("role", "role", {})
-	t.Column("name", "string", {})
-	t.Column("surname", "string", {})
 }
 
 add_index("users", "email", {"unique": true})

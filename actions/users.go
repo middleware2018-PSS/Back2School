@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -33,6 +37,7 @@ func (v UsersResource) List(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
+	// Allocate an empty slice of Users
 	users := &models.Users{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
@@ -40,14 +45,28 @@ func (v UsersResource) List(c buffalo.Context) error {
 	q := tx.PaginateFromParams(c.Params())
 
 	// Retrieve all Users from the DB
-	if err := q.All(users); err != nil {
+	if err := q.Select("id", "created_at", "updated_at", "email", "role").All(users); err != nil {
 		return errors.WithStack(err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, users))
+	// Convert the slice of users to a slice of pointers to users
+	// because Pop wants the former, jsonapi, the latter
+	usersp := []*models.User{}
+	for i := 0; i < len(*users); i++ {
+		usersp = append(usersp, &((*users)[i]))
+	}
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, usersp)
+	if err != nil {
+		log.Println("Problem marshalling")
+		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+	}
+
+	return c.Render(200, r.Func("application/json", customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one User. This function is mapped to
@@ -63,17 +82,20 @@ func (v UsersResource) Show(c buffalo.Context) error {
 	user := &models.User{}
 
 	// To find the User the parameter user_id is used.
-	if err := tx.Find(user, c.Param("user_id")); err != nil {
+	// We omit the Password column because we don't want to return that
+	if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+		Find(user, c.Param("user_id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, user))
-}
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, user)
+	if err != nil {
+		log.Println("Problem marshalling")
+		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+	}
 
-// New renders the form for creating a new User.
-// This function is mapped to the path GET /users/new
-func (v UsersResource) New(c buffalo.Context) error {
-	return c.Render(200, r.Auto(c, &models.User{}))
+	return c.Render(200, r.Func("application/json", customJSONRenderer(res.String())))
 }
 
 // Create adds a User to the DB. This function is mapped to the
@@ -82,8 +104,8 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	// Allocate an empty User
 	user := &models.User{}
 
-	// Bind user to the html form elements
-	if err := c.Bind(user); err != nil {
+	// Unmarshall the JSON payload into a User
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, user); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -93,7 +115,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
+	// Validate the data from the payload
 	verrs, err := tx.ValidateAndCreate(user)
 	if err != nil {
 		return errors.WithStack(err)

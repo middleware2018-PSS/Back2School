@@ -2,7 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"github.com/cippaciong/jsonapi"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -19,14 +22,14 @@ type UserAuth struct {
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-	Email     string    `json:"email" db:"email"`
-	Password  string    `json:"password" db:"password"`
-	Role      string    `json:"role" db:"role"`
-	Name      string    `json:"name" db:"name"`
-	Surname   string    `json:"surname" db:"surname"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,users"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
+	Email     string    `json:"email" db:"email" jsonapi:"attr,email"`
+	Password  string    `json:"password" db:"password" jsonapi:"attr,password,omitempty"`
+	Role      string    `json:"role" db:"role" jsonapi:"attr,role"`
+	Parent    *Parent   `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent"`
+	Teacher   *Teacher  `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher"`
 }
 
 // String is not required by pop and may be deleted
@@ -64,20 +67,15 @@ func (u *User) BeforeCreate(tx *pop.Connection) error {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: u.Email, Name: "Email"},
+		&validators.EmailIsPresent{Field: u.Email, Name: "Email", Message: "Mail is not in the right format."},
 		&validators.StringIsPresent{Field: u.Password, Name: "Password"},
 		&validators.StringIsPresent{Field: u.Role, Name: "Role"},
-		&validators.StringIsPresent{Field: u.Name, Name: "Name"},
-		&validators.StringIsPresent{Field: u.Surname, Name: "Surname"},
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+// JSONAPILinks implements the Linkable interface for a user
+func (user User) JSONAPILinks() *jsonapi.Links {
+	return &jsonapi.Links{
+		"self": fmt.Sprintf("http://%s/users/%s", APIUrl, user.ID.String()),
+	}
 }
