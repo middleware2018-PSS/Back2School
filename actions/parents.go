@@ -49,6 +49,17 @@ func (v ParentsResource) List(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
+	// Attatch users to parents
+	for i, p := range *parents {
+		user := &models.User{}
+		if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+			Find(user, p.UserID); err != nil {
+			return c.Error(404, err)
+		}
+		p.User = user
+		(*parents)[i] = p
+	}
+
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
@@ -86,7 +97,24 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, parent))
+	// Attatch the user to the parent
+	user := &models.User{}
+	if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+		Find(user, parent.UserID); err != nil {
+		return c.Error(404, err)
+	}
+
+	parent.User = user
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, parent)
+	if err != nil {
+		log.Println("Problem marshalling the Parent in Show()")
+		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // New renders the form for creating a new Parent.

@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/cippaciong/jsonapi"
@@ -20,7 +21,8 @@ type Parent struct {
 	Password  string    `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
 	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	UserID    uuid.UUID `db:"user_id"`
+	UserID    uuid.UUID `db:"user_id"` // jsonapi:"relation,user,omitempty"`
+	User      *User     `db:"-" jsonapi:"relation,user,omitempty"`
 }
 
 // Return a string representation of the Parent resource
@@ -54,4 +56,18 @@ func (parent Parent) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
 		"self": fmt.Sprintf("http://%s/parents/%s", APIUrl, parent.ID.String()),
 	}
+}
+
+// Invoked for each relationship defined on the Parent struct when marshaled
+func (parent Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+	log.Println()
+	log.Println("Building Links")
+	log.Println()
+	if relation == "user" {
+		log.Println(parent.UserID.String())
+		return &jsonapi.Links{
+			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, parent.UserID.String()),
+		}
+	}
+	return nil
 }
