@@ -13,6 +13,7 @@ require (
 	github.com/gobuffalo/buffalo v0.13.2
 	github.com/gobuffalo/buffalo-pop v1.1.8
 	github.com/gobuffalo/envy v1.6.7
+	github.com/gobuffalo/fizz v1.0.16 // indirect
 	github.com/gobuffalo/mw-basicauth v1.0.7 // indirect
 	github.com/gobuffalo/mw-contenttype v0.0.0-20180802152300-74f5a47f4d56
 	github.com/gobuffalo/mw-forcessl v0.0.0-20180802152810-73921ae7a130
@@ -28,6 +29,7 @@ require (
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gobuffalo/x v0.0.0-20181025192250-1ef645d63fe8
 	github.com/markbates/grift v1.0.5
+	github.com/markbates/inflect v1.0.4
 	github.com/pkg/errors v0.8.0
 	github.com/rs/cors v1.6.0
 	github.com/sirupsen/logrus v1.1.1
