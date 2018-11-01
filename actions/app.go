@@ -39,7 +39,7 @@ func App() *buffalo.App {
 			SessionName: "_back2_school_session",
 		})
 		// Automatically redirect to SSL
-		app.Use(forceSSL())
+		//app.Use(forceSSL())
 
 		// Set the request content type to JSON
 		app.Use(contenttype.Set("application/json"))

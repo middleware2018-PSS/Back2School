@@ -43,11 +43,9 @@ func (p Parents) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *Parent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.EmailIsPresent{Field: p.Email, Name: "Email",
-			Message: "Mail is not in the right format."},
-		//&validators.StringIsPresent{Field: p.Password, Name: "Passowrd"},
-		&validators.StringIsPresent{Field: p.Name, Name: "Name"},
-		&validators.StringIsPresent{Field: p.Surname, Name: "Surname"},
+		&validators.EmailIsPresent{Field: p.Email, Name: "Email", Message: mailValidationMsg},
+		&validators.StringIsPresent{Field: p.Name, Name: "Name", Message: nameValidationMsg},
+		&validators.StringIsPresent{Field: p.Surname, Name: "Surname", Message: surnameValidationMsg},
 	), nil
 }
 
@@ -60,9 +58,6 @@ func (parent Parent) JSONAPILinks() *jsonapi.Links {
 
 // Invoked for each relationship defined on the Parent struct when marshaled
 func (parent Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
-	log.Println()
-	log.Println("Building Links")
-	log.Println()
 	if relation == "user" {
 		log.Println(parent.UserID.String())
 		return &jsonapi.Links{

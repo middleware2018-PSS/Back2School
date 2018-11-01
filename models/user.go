@@ -67,9 +67,9 @@ func (u *User) BeforeCreate(tx *pop.Connection) error {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.EmailIsPresent{Field: u.Email, Name: "Email", Message: "Mail is not in the right format."},
-		&validators.StringIsPresent{Field: u.Password, Name: "Password"},
-		&validators.StringIsPresent{Field: u.Role, Name: "Role"},
+		&validators.EmailIsPresent{Field: u.Email, Name: "Email", Message: mailValidationMsg},
+		&validators.StringIsPresent{Field: u.Password, Name: "Password", Message: passwordValidationMsg},
+		&validators.StringIsPresent{Field: u.Role, Name: "Role", Message: roleValidationMsg},
 	), nil
 }
 
