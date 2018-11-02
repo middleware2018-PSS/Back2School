@@ -18,12 +18,13 @@ import (
 	"github.com/rs/cors"
 )
 
-var log = logrus.New()
-
 // ENV is used to help switch settings based on where the
 // application is being run. Default is "development".
 var ENV = envy.Get("GO_ENV", "development")
 var app *buffalo.App
+
+// Create a new instance of the logger
+var log = logrus.New()
 
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your
@@ -46,6 +47,7 @@ func App() *buffalo.App {
 
 		if ENV == "development" {
 			app.Use(paramlogger.ParameterLogger)
+			log.SetLevel(logrus.TraceLevel)
 		}
 
 		// Wraps each request in a transaction.
