@@ -6,6 +6,10 @@ tasks:
       - sudo docker run -d --rm --name back2school-db -e POSTGRES_PASSWORD=postgres --network host postgres
       - echo 'Wait some time to make sure that the db is properly initialized and is accepting connections'
 
+  stop-db:
+    cmds:
+      - sudo docker stop back2school-db
+
   init-db:
     cmds:
       - buffalo db create
