@@ -80,6 +80,10 @@ ALTER TABLE public.schema_migration OWNER TO postgres;
 
 CREATE TABLE public.teachers (
     id uuid NOT NULL,
+    email character varying(255) NOT NULL,
+    name character varying(255) NOT NULL,
+    surname character varying(255) NOT NULL,
+    user_id uuid NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -142,6 +146,13 @@ CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USIN
 
 
 --
+-- Name: teachers_email_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX teachers_email_idx ON public.teachers USING btree (email);
+
+
+--
 -- Name: users_email_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -154,6 +165,14 @@ CREATE UNIQUE INDEX users_email_idx ON public.users USING btree (email);
 
 ALTER TABLE ONLY public.parents
     ADD CONSTRAINT parents_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: teachers teachers_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teachers
+    ADD CONSTRAINT teachers_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

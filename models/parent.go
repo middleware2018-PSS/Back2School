@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/cippaciong/jsonapi"
@@ -40,13 +39,26 @@ func (p Parents) String() string {
 	return string(jp)
 }
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// Validate gets run every time you call a "pop.Validate*"
+// (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *Parent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.EmailIsPresent{Field: p.Email, Name: "Email", Message: mailValidationMsg},
 		&validators.StringIsPresent{Field: p.Name, Name: "Name", Message: nameValidationMsg},
 		&validators.StringIsPresent{Field: p.Surname, Name: "Surname", Message: surnameValidationMsg},
 	), nil
+}
+
+// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
+// This method is not required and may be deleted.
+func (p *Parent) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
+}
+
+// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
+// This method is not required and may be deleted.
+func (p *Parent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
@@ -59,7 +71,6 @@ func (parent Parent) JSONAPILinks() *jsonapi.Links {
 // Invoked for each relationship defined on the Parent struct when marshaled
 func (parent Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "user" {
-		log.Println(parent.UserID.String())
 		return &jsonapi.Links{
 			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, parent.UserID.String()),
 		}
