@@ -1,4 +1,5 @@
-p, admin, /*, *
-p, anonymous, /api/v1/login/, *
-p, teacher, /teachers/*, *
-p, parent, /parents/*, *
+p, /api/v1/login, (POST)
+p, /api/v1/users, (GET)|(POST)
+p, /api/v1/users/:id, (GET)|(PUT)|(DELETE)
+p, /api/v1/parents, (POST)
+p, /api/v1/parents/:id, (GET)|(PUT)|(DELETE)

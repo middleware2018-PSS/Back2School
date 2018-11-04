@@ -37,8 +37,7 @@ func UsersAuth(c buffalo.Context) error {
 
 	// Fetch the user from the DB with the email
 	tx := c.Value("tx").(*pop.Connection)
-	err := tx.Where("email = ?", strings.ToLower(userauth.Email)).First(&userauth.User)
-
+	err := loadUser(tx, userauth)
 	if err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {
 			// Couldn't find an user with the supplied email address.
@@ -57,7 +56,9 @@ func UsersAuth(c buffalo.Context) error {
 	claims := jwt.MapClaims{}
 	claims["Id"] = userauth.ID.String()
 	claims["exp"] = time.Now().Add(oneWeek()).Unix()
-	claims["role"] = userauth.Role
+	claims["role"] = userauth.User.Role
+	claims["role_id"] = roleID(userauth)
+
 	// Generate token
 	secretKey := envy.Get("JWT_SECRET", "secret")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -68,4 +69,50 @@ func UsersAuth(c buffalo.Context) error {
 
 func oneWeek() time.Duration {
 	return 7 * 24 * time.Hour
+}
+
+// Set the role_id depending on the user role
+func roleID(userauth *models.UserAuth) string {
+	switch userauth.Role {
+	case "admin":
+		//claims["role_id"] = userauth.User.Admin.ID.String()
+		return userauth.ID.String()
+	case "parent":
+		return userauth.User.Parent.ID.String()
+	case "teacher":
+		return userauth.User.Teacher.ID.String()
+	default:
+		return userauth.ID.String()
+
+	}
+}
+
+func loadUser(tx *pop.Connection, userauth *models.UserAuth) error {
+	var err error
+
+	// Load the User first
+	if err = tx.Where("email = ?", strings.ToLower(userauth.Email)).
+		First(&userauth.User); err != nil {
+		return err
+	}
+
+	// Load nested associations based on user Role
+	switch userauth.User.Role {
+	case "parent":
+		parent := &models.Parent{}
+		err = tx.Where("user_id = ?", userauth.User.ID).
+			First(parent)
+		userauth.User.Parent = parent
+	case "teacher":
+		teacher := &models.Teacher{}
+		err = tx.Where("user_id = ?", userauth.User.ID).
+			First(teacher)
+		userauth.User.Teacher = teacher
+	default: // default is admin
+		//admin := &models.Admin{}
+		//err = tx.Where("user_id = ?", userauth.User.ID).
+		//First(admin)
+		//userauth.User.Admin = admin
+	}
+	return err
 }

@@ -20,7 +20,7 @@ type Parent struct {
 	Password  string    `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
 	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	UserID    uuid.UUID `db:"user_id"` // jsonapi:"relation,user,omitempty"`
+	UserID    uuid.UUID `db:"user_id"`
 	User      *User     `db:"-" jsonapi:"relation,user,omitempty"`
 }
 
