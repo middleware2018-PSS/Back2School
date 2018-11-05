@@ -77,6 +77,7 @@ func App() *buffalo.App {
 		api.Resource("/users", UsersResource{})
 		api.Resource("/parents", ParentsResource{})
 		api.Resource("/teachers", TeachersResource{})
+		app.Resource("/admins", AdminsResource{})
 	}
 
 	return app
