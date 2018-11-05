@@ -20,7 +20,7 @@ type Teacher struct {
 	Password  string    `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
 	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	UserID    uuid.UUID `db:"user_id"` // jsonapi:"relation,user,omitempty"`
+	UserID    uuid.UUID `db:"user_id"`
 	User      *User     `db:"-" jsonapi:"relation,user,omitempty"`
 }
 
@@ -41,7 +41,6 @@ func (t Teachers) String() string {
 
 // Validate gets run every time you call a "pop.Validate*"
 // (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (t *Teacher) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.EmailIsPresent{Field: t.Email, Name: "Email", Message: mailValidationMsg},

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "type": "teachers",
+    "attributes": {
+      "email": "paula.miller@example.com",
+      "password": "password",
+      "name": "Paula",
+      "surname": "Miller"
+    }
+  }
+}

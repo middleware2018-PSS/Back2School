@@ -27,7 +27,6 @@ func (v ParentsResource) List(c buffalo.Context) error {
 			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
-	// Allocate an empty slice of Parents
 	parents := &models.Parents{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
@@ -66,7 +65,7 @@ func (v ParentsResource) List(c buffalo.Context) error {
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, parentsp)
 	if err != nil {
-		log.Println("Problem marshalling parents")
+		log.Debug("Problem marshalling parents in actions.ParentsResource.List")
 		return apiError(c, "Internal Error preparing the response payload",
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}
