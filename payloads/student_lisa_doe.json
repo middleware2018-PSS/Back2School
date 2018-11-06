@@ -1,0 +1,10 @@
+{
+  "data": {
+    "type": "students",
+    "attributes": {
+      "name": "Lisa",
+      "surname": "Doe",
+      "date_of_birth": "2010-03-27T00:00:00Z"
+    }
+  }
+}

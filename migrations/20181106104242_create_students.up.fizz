@@ -1,0 +1,6 @@
+create_table("students") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("name", "string", {})
+	t.Column("surname", "string", {})
+	t.Column("date_of_birth", "date", {})
+}

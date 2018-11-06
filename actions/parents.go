@@ -88,10 +88,18 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 	parent := &models.Parent{}
 
 	// To find the Parent the parameter parent_id is used.
-	if err := tx.Find(parent, c.Param("parent_id")); err != nil {
+	if err := tx.Eager("Students").Find(parent, c.Param("parent_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}
+
+	// Convert the slice of students to a slice of pointers to students
+	// because Pop wants the former, jsonapi, the latter
+	studentsp := []*models.Student{}
+	for i := 0; i < len(parent.Students); i++ {
+		studentsp = append(studentsp, &(parent.Students[i]))
+	}
+	parent.StudentsRel = studentsp
 
 	// Attatch the user to the parent
 	user := &models.User{}
@@ -103,6 +111,7 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 
 	parent.User = user
 
+	log.Println(parent)
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, parent)
 	if err != nil {
