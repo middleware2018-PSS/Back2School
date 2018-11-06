@@ -12,14 +12,14 @@ tasks:
 
   init-db:
     cmds:
-      - buffalo db create
-      - buffalo db migrate
+      - buffalo pop create
+      - buffalo pop migrate
       - buffalo task db:seed
 
   reset-db:
     cmds:
-      - buffalo db reset
-      - buffalo db migrate
+      - buffalo pop reset
+      - buffalo pop migrate
       - buffalo task db:seed
 
   psql:
