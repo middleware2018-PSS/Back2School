@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -30,7 +34,8 @@ func (v AdminsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	admins := &models.Admins{}
@@ -41,13 +46,43 @@ func (v AdminsResource) List(c buffalo.Context) error {
 
 	// Retrieve all Admins from the DB
 	if err := q.All(admins); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal Error", "Internal Server Error",
+			http.StatusInternalServerError, err)
+	}
+
+	// Attatch users to admins
+	for i, a := range *admins {
+		user := &models.User{}
+		if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+			Find(user, a.UserID); err != nil {
+			return apiError(c, "Internal Error",
+				"Internal Server Error", http.StatusInternalServerError, err)
+		}
+		a.User = user
+		// Save it back to the admins list
+		(*admins)[i] = a
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, admins))
+	// Convert the slice of admins to a slice of pointers to admins
+	// because Pop wants the former, jsonapi, the latter
+	adminsp := []*models.Admin{}
+	for i := 0; i < len(*admins); i++ {
+		adminsp = append(adminsp, &((*admins)[i]))
+	}
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, adminsp)
+	if err != nil {
+		log.Debug("Problem marshalling admins in actions.AdminsResource.List")
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one Admin. This function is mapped to
@@ -56,7 +91,8 @@ func (v AdminsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	// Allocate an empty Admin
@@ -64,74 +100,101 @@ func (v AdminsResource) Show(c buffalo.Context) error {
 
 	// To find the Admin the parameter admin_id is used.
 	if err := tx.Find(admin, c.Param("admin_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	return c.Render(200, r.Auto(c, admin))
-}
+	// Attatch the user to the admin
+	user := &models.User{}
+	if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+		Find(user, admin.UserID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
 
-// New renders the form for creating a new Admin.
-// This function is mapped to the path GET /admins/new
-func (v AdminsResource) New(c buffalo.Context) error {
-	return c.Render(200, r.Auto(c, &models.Admin{}))
+	admin.User = user
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, admin)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Create adds a Admin to the DB. This function is mapped to the
 // path POST /admins
 func (v AdminsResource) Create(c buffalo.Context) error {
-	// Allocate an empty Admin
 	admin := &models.Admin{}
 
-	// Bind admin to the html form elements
-	if err := c.Bind(admin); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a Admin struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, admin); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	// Create the User associated to the Admin
+	user := &models.User{
+		Email:    admin.Email,
+		Password: admin.Password,
+		Role:     "admin",
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
-	verrs, err := tx.ValidateAndCreate(admin)
+	// Store the user in the DB
+	verrs, err := tx.ValidateAndCreate(user)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, admin))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Admin was created successfully")
+	log.Debug("User created in actions.AdminsResource.Create:\n%v\n", user)
 
-	// and redirect to the admins index page
-	return c.Render(201, r.Auto(c, admin))
-}
+	// Add the User ID to the Admin
+	admin.UserID = user.ID
 
-// Edit renders a edit form for a Admin. This function is
-// mapped to the path GET /admins/{admin_id}/edit
-func (v AdminsResource) Edit(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+	// Store the admin in the DB
+	verrs, err = tx.ValidateAndCreate(admin)
+	if err != nil {
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
-	// Allocate an empty Admin
-	admin := &models.Admin{}
-
-	if err := tx.Find(admin, c.Param("admin_id")); err != nil {
-		return c.Error(404, err)
+	// Check for validation errors
+	if verrs.HasAny() {
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	return c.Render(200, r.Auto(c, admin))
+	// Clear the Password so that it's not returned in the response
+	admin.Password = ""
+	log.Debug("Admin created in actions.AdminsResource.Create:\n%v\n", admin)
+
+	// If there are no errors return the Admin resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, admin)
+	if err != nil {
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Update changes a Admin in the DB. This function is mapped to
@@ -140,40 +203,50 @@ func (v AdminsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Admin
 	admin := &models.Admin{}
 
 	if err := tx.Find(admin, c.Param("admin_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot update the resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// Bind Admin to the html form elements
-	if err := c.Bind(admin); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a Admin struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, admin); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Store the admin in the DB
 	verrs, err := tx.ValidateAndUpdate(admin)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, admin))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Admin was updated successfully")
+	// Nullify password before sending the response
+	admin.Password = ""
 
-	// and redirect to the admins index page
-	return c.Render(200, r.Auto(c, admin))
+	// Marshal the modified resource and send it back
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, admin)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Destroy deletes a Admin from the DB. This function is mapped
@@ -182,7 +255,8 @@ func (v AdminsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Admin
@@ -190,16 +264,26 @@ func (v AdminsResource) Destroy(c buffalo.Context) error {
 
 	// To find the Admin the parameter admin_id is used.
 	if err := tx.Find(admin, c.Param("admin_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	if err := tx.Destroy(admin); err != nil {
-		return errors.WithStack(err)
+	// Allocate an empty User
+	user := &models.User{}
+
+	// Find the User with admin.UserID
+	if err := tx.Find(user, admin.UserID); err != nil {
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "Admin was destroyed successfully")
+	// We delete only the user since the admin entry is handled by cascading rules
+	if err := tx.Destroy(user); err != nil {
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
+	}
 
 	// Redirect to the admins index page
-	return c.Render(200, r.Auto(c, admin))
+	return c.Render(204, r.Func("application/json",
+		customJSONRenderer("")))
 }

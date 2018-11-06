@@ -1,0 +1,11 @@
+{
+  "data": {
+    "type": "admins",
+    "attributes": {
+      "email": "empty.name@example.com",
+      "password": "password",
+      "name": "",
+      "surname": "Surname"
+    }
+  }
+}

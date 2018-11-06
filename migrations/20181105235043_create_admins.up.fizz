@@ -1,3 +1,12 @@
 create_table("admins") {
 	t.Column("id", "uuid", {"primary": true})
+	t.Column("email", "string", {})
+	t.Column("name", "string", {})
+	t.Column("surname", "string", {})
+	t.Column("user_id", "uuid", {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {
+        "on_delete": "cascade",
+        "on_update": "cascade"})
 }
+
+add_index("admins", "email", {"unique": true})
