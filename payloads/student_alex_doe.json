@@ -2,9 +2,9 @@
   "data": {
     "type": "students",
     "attributes": {
-      "name": "Lisa",
+      "name": "Alex",
       "surname": "Doe",
-      "date_of_birth": "2010-03-27T00:00:00Z"
+      "date_of_birth": "2012-07-02T00:00:00Z"
     },
     "relationships": {
       "parents": {
