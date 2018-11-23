@@ -76,10 +76,10 @@ func App() *buffalo.App {
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
 		api.Resource("/admins", AdminsResource{})
-		p := api.Resource("/parents", ParentsResource{})
-		p.Resource("/students", StudentsResource{}) // parents->students nested resource
-		t := api.Resource("/teachers", TeachersResource{})
-		t.Resource("/students", StudentsResource{}) // parents->students nested resource
+		api.Resource("/parents", ParentsResource{})
+		api.Resource("/teachers", TeachersResource{})
+		api.Resource("/students", StudentsResource{})
+		//t.Resource("/students", StudentsResource{}) // parents->students nested resource
 		//app.Resource("/students", StudentsResource{})
 	}
 
