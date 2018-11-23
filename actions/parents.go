@@ -39,31 +39,11 @@ func (v ParentsResource) List(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Attatch users to parents
-	for i, p := range *parents {
-		user := &models.User{}
-		if err := tx.Select("id", "created_at", "updated_at", "email", "role").
-			Find(user, p.UserID); err != nil {
-			return apiError(c, "Internal Error",
-				"Internal Server Error", http.StatusInternalServerError, err)
-		}
-		p.User = user
-		// Save it back to the parents list
-		(*parents)[i] = p
-	}
-
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	// Convert the slice of parents to a slice of pointers to parents
-	// because Pop wants the former, jsonapi, the latter
-	parentsp := []*models.Parent{}
-	for i := 0; i < len(*parents); i++ {
-		parentsp = append(parentsp, &((*parents)[i]))
-	}
-
 	res := new(bytes.Buffer)
-	err := jsonapi.MarshalPayload(res, parentsp)
+	err := jsonapi.MarshalPayload(res, *parents)
 	if err != nil {
 		log.Debug("Problem marshalling parents in actions.ParentsResource.List")
 		return apiError(c, "Internal Error preparing the response payload",
@@ -88,18 +68,23 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 	parent := &models.Parent{}
 
 	// To find the Parent the parameter parent_id is used.
-	if err := tx.Eager("Students").Find(parent, c.Param("parent_id")); err != nil {
+	//if err := tx.Eager("Students").Find(parent, c.Param("parent_id")); err != nil {
+	//return apiError(c, "The requested resource cannot be found",
+	//"Not Found", http.StatusNotFound, err)
+	//}
+	if err := tx.Eager().Find(parent, c.Param("parent_id")); err != nil {
+		//if err := tx.Find(parent, c.Param("parent_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}
 
 	// Convert the slice of students to a slice of pointers to students
 	// because Pop wants the former, jsonapi, the latter
-	studentsp := []*models.Student{}
-	for i := 0; i < len(parent.Students); i++ {
-		studentsp = append(studentsp, &(parent.Students[i]))
-	}
-	parent.StudentsRel = studentsp
+	//studentsp := []*models.Student{}
+	//for i := 0; i < len(parent.Students); i++ {
+	//studentsp = append(studentsp, &(parent.Students[i]))
+	//}
+	//parent.StudentsRel = studentsp
 
 	// Attatch the user to the parent
 	user := &models.User{}
@@ -219,7 +204,7 @@ func (v ParentsResource) Update(c buffalo.Context) error {
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
-	// Store the parent in the DB
+	// Update the parent in the DB
 	verrs, err := tx.ValidateAndUpdate(parent)
 	if err != nil {
 		return apiError(c, "Internal error",

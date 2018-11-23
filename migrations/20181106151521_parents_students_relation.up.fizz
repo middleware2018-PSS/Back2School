@@ -1,5 +1,4 @@
 create_table("parents_students") {
-        t.DisableTimestamps()
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("parent_id", "uuid", {})
 	t.Column("student_id", "uuid", {})
