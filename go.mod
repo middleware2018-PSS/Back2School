@@ -3,7 +3,7 @@ module github.com/middleware2018-PSS/back2_school
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
 	github.com/casbin/casbin v1.6.0
-	github.com/cippaciong/jsonapi v0.0.0-20181027132418-a63f257f1657
+	github.com/cippaciong/jsonapi v0.0.0-20181117162014-f459903d4293
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-openapi/jsonpointer v0.17.2 // indirect
 	github.com/go-openapi/jsonreference v0.17.2 // indirect
@@ -17,7 +17,7 @@ require (
 	github.com/gobuffalo/mw-paramlogger v0.0.0-20181005191442-d6ee392ec72e
 	github.com/gobuffalo/mw-tokenauth v0.0.0-20181001105134-8545f626c189
 	github.com/gobuffalo/packr v1.19.0
-	github.com/gobuffalo/pop v4.9.0+incompatible
+	github.com/gobuffalo/pop/v4 v4.9.1
 	github.com/gobuffalo/suite v2.2.0+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
@@ -31,3 +31,5 @@ require (
 	github.com/unrolled/secure v0.0.0-20181022170031-4b6b7cf51606
 	golang.org/x/crypto v0.0.0-20181106171534-e4dc69e5b2fd
 )
+
+//replace github.com/cippaciong/jsonapi => ../../cippaciong/jsonapi
