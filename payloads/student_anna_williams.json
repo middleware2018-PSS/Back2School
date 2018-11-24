@@ -5,6 +5,16 @@
       "name": "Anna",
       "surname": "Williams",
       "date_of_birth": "2011-05-16T00:00:00Z"
+    },
+    "relationships": {
+      "parents": {
+        "data": [
+            {
+              "type": "parents",
+              "id": "2a47ba0c-d549-4f53-b76d-1d2e7e946bc3"
+            }
+        ]
+      }
     }
   }
 }

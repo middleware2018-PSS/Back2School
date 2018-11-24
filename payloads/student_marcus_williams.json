@@ -5,6 +5,16 @@
       "name": "Marcus",
       "surname": "Williams",
       "date_of_birth": "2009-07-12T00:00:00Z"
+    },
+    "relationships": {
+      "parents": {
+        "data": [
+            {
+              "type": "parents",
+              "id": "ab77cdf6-a9ec-4ee9-a30b-c4644b50c16f"
+            }
+        ]
+      }
     }
   }
 }
