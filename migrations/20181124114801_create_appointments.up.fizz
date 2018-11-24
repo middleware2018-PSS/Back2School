@@ -1,0 +1,6 @@
+create_table("appointments") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("teacher_id", "uuid", {})
+	t.Column("student_id", "uuid", {})
+	t.Column("time", "date", {})
+}

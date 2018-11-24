@@ -1,0 +1,11 @@
+create_table("parents_appointments") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("parent_id", "uuid", {})
+	t.Column("appointment_id", "uuid", {})
+	t.ForeignKey("parent_id", {"parents": ["id"]}, {
+        "on_delete": "cascade",
+        "on_update": "cascade"})
+	t.ForeignKey("appointment_id", {"appointments": ["id"]}, {
+        "on_delete": "cascade",
+        "on_update": "cascade"})
+}

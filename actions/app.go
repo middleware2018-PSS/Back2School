@@ -81,6 +81,7 @@ func App() *buffalo.App {
 		api.Resource("/students", StudentsResource{})
 		//t.Resource("/students", StudentsResource{}) // parents->students nested resource
 		//app.Resource("/students", StudentsResource{})
+		api.Resource("/appointments", AppointmentsResource{})
 	}
 
 	return app
