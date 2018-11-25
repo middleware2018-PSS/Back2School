@@ -56,7 +56,7 @@ func (v AppointmentsResource) List(c buffalo.Context) error {
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, *appointments)
 	if err != nil {
-		log.Debug("Problem marshalling students in actions.StudentsResource.List")
+		log.Debug("Problem marshalling appointments in actions.AppointmentsResource.List")
 		return apiError(c, "Internal Error preparing the response payload",
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}

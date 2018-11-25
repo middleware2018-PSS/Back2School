@@ -34,7 +34,8 @@ func (v ClassesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	classes := &models.Classes{}
@@ -45,13 +46,23 @@ func (v ClassesResource) List(c buffalo.Context) error {
 
 	// Retrieve all Classes from the DB
 	if err := q.All(classes); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal Error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, classes))
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, *classes)
+	if err != nil {
+		log.Debug("Problem marshalling classes in actions.ClassesResource.List")
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one Class. This function is mapped to
@@ -60,18 +71,28 @@ func (v ClassesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	// Allocate an empty Class
 	class := &models.Class{}
 
 	// To find the Class the parameter class_id is used.
-	if err := tx.Find(class, c.Param("class_id")); err != nil {
-		return c.Error(404, err)
+	if err := tx.Eager().Find(class, c.Param("class_id")); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	return c.Render(200, r.Auto(c, class))
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, class)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // New renders the form for creating a new Class.
@@ -157,40 +178,53 @@ func (v ClassesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Class
 	class := &models.Class{}
 
 	if err := tx.Find(class, c.Param("class_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot update the resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// Bind Class to the html form elements
-	if err := c.Bind(class); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a Class struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, class); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Update the class in the DB
 	verrs, err := tx.ValidateAndUpdate(class)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, class))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Class was updated successfully")
+	// Reload the class to rebuild relationships
+	if err := tx.Eager().Find(class, class.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
 
-	// and redirect to the classes index page
-	return c.Render(200, r.Auto(c, class))
+	// Marshal the resource and send it back
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, class)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Destroy deletes a Class from the DB. This function is mapped
@@ -199,7 +233,8 @@ func (v ClassesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Class
@@ -207,16 +242,16 @@ func (v ClassesResource) Destroy(c buffalo.Context) error {
 
 	// To find the Class the parameter class_id is used.
 	if err := tx.Find(class, c.Param("class_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
 	if err := tx.Destroy(class); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "Class was destroyed successfully")
-
-	// Redirect to the classes index page
-	return c.Render(200, r.Auto(c, class))
+	// Redirect to the parents index page
+	return c.Render(204, r.Func("application/json",
+		customJSONRenderer("")))
 }

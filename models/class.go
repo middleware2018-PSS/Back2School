@@ -28,7 +28,7 @@ func (c Class) String() string {
 }
 
 // Classes is not required by pop and may be deleted
-type Classes []Class
+type Classes []*Class
 
 // String is not required by pop and may be deleted
 func (c Classes) String() string {
