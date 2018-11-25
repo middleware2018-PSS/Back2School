@@ -21,11 +21,11 @@ type Teacher struct {
 	Password string `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
 	Name     string `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	// User information
-	UserID uuid.UUID `db:"user_id"`
-	User   *User     `db:"-" jsonapi:"relation,user,omitempty"`
 	// Relationships
+	UserID       uuid.UUID      `db:"user_id"`
+	User         *User          `db:"-" jsonapi:"relation,user,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
+	Classes      []*Class       `many_to_many:"teachers_classes" jsonapi:"relation,classes,omitempty"`
 }
 
 // String is not required by pop and may be deleted

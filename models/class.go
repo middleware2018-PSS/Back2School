@@ -10,9 +10,15 @@ import (
 )
 
 type Class struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,classes"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
+	//Attributes
+	Name string    `json:"name" db:"name" jsonapi:"attr,name"`
+	Year time.Time `json:"year" db:"year" jsonapi:"attr,year"`
+	// Relationships
+	Teachers []*Teacher `many_to_many:"teachers_classes" jsonapi:"relation,teachers,omitempty"`
+	Students []*Student `has_many:"students" jsonapi:"relation,students,omitempty"`
 }
 
 // String is not required by pop and may be deleted

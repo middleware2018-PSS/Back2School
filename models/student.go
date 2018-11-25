@@ -7,20 +7,25 @@ import (
 
 	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/nulls"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 )
 
 type Student struct {
-	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,students"`
-	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
-	Name         string         `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname      string         `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	DateOfBirth  time.Time      `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,students"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
+	// Attributes
+	Name        string    `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname     string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	DateOfBirth time.Time `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
+	// Relationships
 	Parents      []*Parent      `many_to_many:"parents_students" jsonapi:"relation,parents,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
+	Class        *Class         `belongs_to:"class" jsonapi:"relation,class,omitempty"`
+	ClassID      nulls.UUID     `db:"class_id"`
 }
 
 // String is not required by pop and may be deleted
