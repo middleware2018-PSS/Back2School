@@ -13,15 +13,19 @@ import (
 )
 
 type Teacher struct {
-	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,parents"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,teachers"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	Email     string    `json:"email" db:"email" jsonapi:"attr,email"`
-	Password  string    `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
-	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	UserID    uuid.UUID `db:"user_id"`
-	User      *User     `db:"-" jsonapi:"relation,user,omitempty"`
+	// Attributes
+	Email    string `json:"email" db:"email" jsonapi:"attr,email"`
+	Password string `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
+	Name     string `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	// User information
+	UserID uuid.UUID `db:"user_id"`
+	User   *User     `db:"-" jsonapi:"relation,user,omitempty"`
+	// Relationships
+	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
 }
 
 // String is not required by pop and may be deleted

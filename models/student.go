@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/cippaciong/jsonapi"
@@ -14,13 +13,14 @@ import (
 )
 
 type Student struct {
-	ID          uuid.UUID `json:"id" db:"id" jsonapi:"primary,students"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
-	Name        string    `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname     string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	DateOfBirth time.Time `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
-	Parents     []*Parent `many_to_many:"parents_students" jsonapi:"relation,parents,omitempty"`
+	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,students"`
+	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
+	Name         string         `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname      string         `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	DateOfBirth  time.Time      `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
+	Parents      []*Parent      `many_to_many:"parents_students" jsonapi:"relation,parents,omitempty"`
+	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
 }
 
 // String is not required by pop and may be deleted
@@ -60,7 +60,6 @@ func (s *Student) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (s *Student) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	log.Println("HERE IN VALIDATECREATE")
 	return validate.NewErrors(), nil
 }
 

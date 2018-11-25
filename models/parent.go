@@ -17,16 +17,20 @@ type ParentRelationship struct {
 }
 
 type Parent struct {
-	ID        uuid.UUID  `json:"id" db:"id" jsonapi:"primary,parents"`
-	CreatedAt time.Time  `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt time.Time  `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	Email     string     `json:"email" db:"email" jsonapi:"attr,email"`
-	Password  string     `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
-	Name      string     `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname   string     `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	UserID    uuid.UUID  `db:"user_id"`
-	User      *User      `db:"-" jsonapi:"relation,user,omitempty"`
-	Students  []*Student `many_to_many:"parents_students" jsonapi:"relation,students,omitempty"`
+	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,parents"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
+	// Attributes
+	Email    string `json:"email" db:"email" jsonapi:"attr,email"`
+	Password string `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
+	Name     string `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	// User information
+	UserID uuid.UUID `db:"user_id"`
+	User   *User     `db:"-" jsonapi:"relation,user,omitempty"`
+	// Relationships
+	Students     []*Student     `many_to_many:"parents_students" jsonapi:"relation,students,omitempty"`
+	Appointments []*Appointment `many_to_many:"parents_appointments" jsonapi:"relation,appointments,omitempty"`
 }
 
 // Return a string representation of the Parent resource

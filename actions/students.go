@@ -118,7 +118,7 @@ func (v StudentsResource) Create(c buffalo.Context) error {
 			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
-	// Create and save the user
+	// Create and save the student
 	verrs, err := tx.ValidateAndCreate(student)
 	if err != nil {
 		return apiError(c, "Validation Error", "Unprocessable Entity",
@@ -134,7 +134,7 @@ func (v StudentsResource) Create(c buffalo.Context) error {
 	// Log student creation
 	log.Debug("Student created in actions.StudentsResource.Create:\n%v\n", student)
 
-	// Reload the user with proper parent information
+	// Reload the student with proper parent information
 	if err := tx.Eager().Find(student, student.ID); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
@@ -268,7 +268,7 @@ func (v StudentsResource) Update(c buffalo.Context) error {
 			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// Reload the user with proper parent information
+	// Reload the student with proper parent information
 	if err := tx.Eager().Find(student, student.ID); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)

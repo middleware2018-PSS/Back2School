@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -30,7 +34,8 @@ func (v AppointmentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	appointments := &models.Appointments{}
@@ -41,13 +46,23 @@ func (v AppointmentsResource) List(c buffalo.Context) error {
 
 	// Retrieve all Appointments from the DB
 	if err := q.All(appointments); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal Error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, appointments))
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, *appointments)
+	if err != nil {
+		log.Debug("Problem marshalling students in actions.StudentsResource.List")
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one Appointment. This function is mapped to
@@ -56,18 +71,28 @@ func (v AppointmentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	// Allocate an empty Appointment
 	appointment := &models.Appointment{}
 
 	// To find the Appointment the parameter appointment_id is used.
-	if err := tx.Find(appointment, c.Param("appointment_id")); err != nil {
-		return c.Error(404, err)
+	if err := tx.Eager().Find(appointment, c.Param("appointment_id")); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	return c.Render(200, r.Auto(c, appointment))
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, appointment)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // New renders the form for creating a new Appointment.
@@ -82,37 +107,52 @@ func (v AppointmentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Appointment
 	appointment := &models.Appointment{}
 
-	// Bind appointment to the html form elements
-	if err := c.Bind(appointment); err != nil {
-		return errors.WithStack(err)
+	// Unmarshal appointment from the json payload
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, appointment); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
+
+	//log.Println(appointment)
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
+	// Create and save the appointment
 	verrs, err := tx.ValidateAndCreate(appointment)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, appointment))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Appointment was created successfully")
+	// Log appointment creation
+	log.Debug("Appointment created in actions.AppointmentsResource.Create:\n%v\n", appointment)
 
-	// and redirect to the appointments index page
-	return c.Render(201, r.Auto(c, appointment))
+	// Reload the appointment to rebuild relationships
+	if err := tx.Eager().Find(appointment, appointment.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	// If there are no errors return the Appointment resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, appointment)
+	if err != nil {
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Edit renders a edit form for a Appointment. This function is
@@ -140,40 +180,53 @@ func (v AppointmentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Appointment
 	appointment := &models.Appointment{}
 
 	if err := tx.Find(appointment, c.Param("appointment_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot update the resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// Bind Appointment to the html form elements
-	if err := c.Bind(appointment); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a Appointment struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, appointment); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Update the appointment in the DB
 	verrs, err := tx.ValidateAndUpdate(appointment)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, appointment))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Appointment was updated successfully")
+	// Reload the appointment to rebuild relationships
+	if err := tx.Eager().Find(appointment, appointment.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
 
-	// and redirect to the appointments index page
-	return c.Render(200, r.Auto(c, appointment))
+	// Marshal the resource and send it back
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, appointment)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Destroy deletes a Appointment from the DB. This function is mapped
@@ -182,7 +235,8 @@ func (v AppointmentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Appointment
@@ -190,16 +244,16 @@ func (v AppointmentsResource) Destroy(c buffalo.Context) error {
 
 	// To find the Appointment the parameter appointment_id is used.
 	if err := tx.Find(appointment, c.Param("appointment_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
 	if err := tx.Destroy(appointment); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "Appointment was destroyed successfully")
-
-	// Redirect to the appointments index page
-	return c.Render(200, r.Auto(c, appointment))
+	// Redirect to the parents index page
+	return c.Render(204, r.Func("application/json",
+		customJSONRenderer("")))
 }

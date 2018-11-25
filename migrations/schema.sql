@@ -50,6 +50,22 @@ CREATE TABLE public.admins (
 ALTER TABLE public.admins OWNER TO postgres;
 
 --
+-- Name: appointments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.appointments (
+    id uuid NOT NULL,
+    teacher_id uuid NOT NULL,
+    student_id uuid NOT NULL,
+    "time" timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.appointments OWNER TO postgres;
+
+--
 -- Name: parents; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -65,6 +81,21 @@ CREATE TABLE public.parents (
 
 
 ALTER TABLE public.parents OWNER TO postgres;
+
+--
+-- Name: parents_appointments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.parents_appointments (
+    id uuid NOT NULL,
+    parent_id uuid NOT NULL,
+    appointment_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.parents_appointments OWNER TO postgres;
 
 --
 -- Name: parents_students; Type: TABLE; Schema: public; Owner: postgres
@@ -150,6 +181,22 @@ ALTER TABLE ONLY public.admins
 
 
 --
+-- Name: appointments appointments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.appointments
+    ADD CONSTRAINT appointments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: parents_appointments parents_appointments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_appointments
+    ADD CONSTRAINT parents_appointments_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: parents parents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -230,6 +277,38 @@ CREATE UNIQUE INDEX users_email_idx ON public.users USING btree (email);
 
 ALTER TABLE ONLY public.admins
     ADD CONSTRAINT admins_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: appointments appointments_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.appointments
+    ADD CONSTRAINT appointments_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: appointments appointments_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.appointments
+    ADD CONSTRAINT appointments_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: parents_appointments parents_appointments_appointment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_appointments
+    ADD CONSTRAINT parents_appointments_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES public.appointments(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: parents_appointments parents_appointments_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_appointments
+    ADD CONSTRAINT parents_appointments_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.parents(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
