@@ -15,7 +15,7 @@ type Class struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
 	//Attributes
 	Name string    `json:"name" db:"name" jsonapi:"attr,name"`
-	Year time.Time `json:"year" db:"year" jsonapi:"attr,year"`
+	Year time.Time `json:"year" db:"year" jsonapi:"attr,year,iso8601"`
 	// Relationships
 	Teachers []*Teacher `many_to_many:"teachers_classes" jsonapi:"relation,teachers,omitempty"`
 	Students []*Student `has_many:"students" jsonapi:"relation,students,omitempty"`

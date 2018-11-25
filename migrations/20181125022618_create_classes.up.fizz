@@ -1,3 +1,5 @@
 create_table("classes") {
 	t.Column("id", "uuid", {"primary": true})
+	t.Column("name", "string", {})
+	t.Column("year", "date", {})
 }

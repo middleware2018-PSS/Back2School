@@ -1,0 +1,23 @@
+{
+  "data": {
+    "type": "classes",
+    "attributes": {
+      "name": "1A",
+      "year": "2018-09-01T00:00:00Z"
+    },
+    "relationships": {
+      "teachers": {
+        "data": [
+            { "type": "teachers", "id": "13a965fd-ee04-43b0-9ed7-95e45fa5c1ef" },
+            { "type": "teachers", "id": "94155ca8-2fec-45a7-a28e-d13bc301a756" }
+        ]
+      },
+      "students": {
+        "data": [
+            { "type": "students", "id": "9f5bbb40-89ac-4389-8c93-b67eff45866b" },
+            { "type": "students", "id": "34bada00-1e16-4ac6-a240-a0f3474116f8" }
+        ]
+      }
+    }
+  }
+}

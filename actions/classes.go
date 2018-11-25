@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -82,37 +86,50 @@ func (v ClassesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Class
 	class := &models.Class{}
 
-	// Bind class to the html form elements
-	if err := c.Bind(class); err != nil {
-		return errors.WithStack(err)
+	// Unmarshal class from the json payload
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, class); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
+	// Create and save the class
 	verrs, err := tx.ValidateAndCreate(class)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, class))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Class was created successfully")
+	// Log class creation
+	log.Debug("Class created in actions.ClasssesResource.Create:\n%v\n", class)
 
-	// and redirect to the classes index page
-	return c.Render(201, r.Auto(c, class))
+	// Reload the class to rebuild relationships
+	if err := tx.Eager().Find(class, class.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	// If there are no errors return the Appointment resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, class)
+	if err != nil {
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Edit renders a edit form for a Class. This function is
