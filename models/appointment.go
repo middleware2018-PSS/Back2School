@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/cippaciong/jsonapi"
@@ -68,19 +67,16 @@ func (appointment Appointment) JSONAPILinks() *jsonapi.Links {
 // Invoked for each relationship defined on the Appointment struct when marshaled
 func (appointment Appointment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "student" {
-		log.Println("STUDENT REL")
 		return &jsonapi.Links{
 			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, appointment.Student.ID.String()),
 		}
 	}
 	if relation == "parents" {
-		log.Println("PARENT REL")
 		return &jsonapi.Links{
 			"parents": fmt.Sprintf("http://%s/appointments/%s/parents", APIUrl, appointment.ID.String()),
 		}
 	}
 	if relation == "teacher" {
-		log.Println("TEACHER REL")
 		return &jsonapi.Links{
 			"teacher": fmt.Sprintf("http://%s/teacher/%s", APIUrl, appointment.Teacher.ID.String()),
 		}
