@@ -1,0 +1,11 @@
+create_table("teachers_classes") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("teacher_id", "uuid", {})
+	t.Column("class_id", "uuid", {})
+	t.ForeignKey("teacher_id", {"teachers": ["id"]}, {
+        "on_delete": "cascade",
+        "on_update": "cascade"})
+	t.ForeignKey("class_id", {"classes": ["id"]}, {
+        "on_delete": "cascade",
+        "on_update": "cascade"})
+}

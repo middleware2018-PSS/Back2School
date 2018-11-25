@@ -66,6 +66,19 @@ CREATE TABLE public.appointments (
 ALTER TABLE public.appointments OWNER TO postgres;
 
 --
+-- Name: classes; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.classes (
+    id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.classes OWNER TO postgres;
+
+--
 -- Name: parents; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -157,6 +170,21 @@ CREATE TABLE public.teachers (
 ALTER TABLE public.teachers OWNER TO postgres;
 
 --
+-- Name: teachers_classes; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.teachers_classes (
+    id uuid NOT NULL,
+    teacher_id uuid NOT NULL,
+    class_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.teachers_classes OWNER TO postgres;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -189,6 +217,14 @@ ALTER TABLE ONLY public.appointments
 
 
 --
+-- Name: classes classes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.classes
+    ADD CONSTRAINT classes_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: parents_appointments parents_appointments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -218,6 +254,14 @@ ALTER TABLE ONLY public.parents_students
 
 ALTER TABLE ONLY public.students
     ADD CONSTRAINT students_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: teachers_classes teachers_classes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teachers_classes
+    ADD CONSTRAINT teachers_classes_pkey PRIMARY KEY (id);
 
 
 --
@@ -333,6 +377,22 @@ ALTER TABLE ONLY public.parents_students
 
 ALTER TABLE ONLY public.parents
     ADD CONSTRAINT parents_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: teachers_classes teachers_classes_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teachers_classes
+    ADD CONSTRAINT teachers_classes_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: teachers_classes teachers_classes_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teachers_classes
+    ADD CONSTRAINT teachers_classes_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
