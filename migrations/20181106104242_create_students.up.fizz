@@ -3,8 +3,8 @@ create_table("students") {
 	t.Column("name", "string", {})
 	t.Column("surname", "string", {})
 	t.Column("date_of_birth", "date", {})
-	t.Column("class_id", "uuid", {})
-	t.ForeignKey("class_id", {"class": ["id"]}, {
-        "on_delete": "set_null",
-        "on_update": "cascade"})
+	t.Column("class_id", "uuid", {"null": true})
+	t.ForeignKey("class_id", {"classes": ["id"]}, {
+        "on_delete": "SET NULL",
+        "on_update": "CASCADE"})
 }

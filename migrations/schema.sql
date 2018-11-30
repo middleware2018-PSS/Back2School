@@ -71,6 +71,8 @@ ALTER TABLE public.appointments OWNER TO postgres;
 
 CREATE TABLE public.classes (
     id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    year date NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -145,9 +147,9 @@ CREATE TABLE public.students (
     name character varying(255) NOT NULL,
     surname character varying(255) NOT NULL,
     date_of_birth date NOT NULL,
+    class_id uuid,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    class_id uuid
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -378,6 +380,14 @@ ALTER TABLE ONLY public.parents_students
 
 ALTER TABLE ONLY public.parents
     ADD CONSTRAINT parents_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: students students_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.students
+    ADD CONSTRAINT students_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
