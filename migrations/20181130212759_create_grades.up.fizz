@@ -1,3 +1,9 @@
 create_table("grades") {
 	t.Column("id", "uuid", {"primary": true})
+	t.Column("subject", "subject", {})
+	t.Column("grade", "integer", {})
+	t.Column("student_id", "uuid", {})
+	t.ForeignKey("student_id", {"students": ["id"]}, {
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
 }
