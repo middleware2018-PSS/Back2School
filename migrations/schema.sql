@@ -28,6 +28,23 @@ CREATE TYPE public.role AS ENUM (
 
 ALTER TYPE public.role OWNER TO postgres;
 
+--
+-- Name: subject; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.subject AS ENUM (
+    'math',
+    'science',
+    'history',
+    'geography',
+    'art',
+    'music',
+    'english'
+);
+
+
+ALTER TYPE public.subject OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -79,6 +96,22 @@ CREATE TABLE public.classes (
 
 
 ALTER TABLE public.classes OWNER TO postgres;
+
+--
+-- Name: grades; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.grades (
+    id uuid NOT NULL,
+    subject public.subject NOT NULL,
+    grade integer NOT NULL,
+    student_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.grades OWNER TO postgres;
 
 --
 -- Name: parents; Type: TABLE; Schema: public; Owner: postgres
@@ -228,6 +261,14 @@ ALTER TABLE ONLY public.classes
 
 
 --
+-- Name: grades grades_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grades
+    ADD CONSTRAINT grades_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: parents_appointments parents_appointments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -340,6 +381,14 @@ ALTER TABLE ONLY public.appointments
 
 ALTER TABLE ONLY public.appointments
     ADD CONSTRAINT appointments_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: grades grades_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grades
+    ADD CONSTRAINT grades_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
