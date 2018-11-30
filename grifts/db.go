@@ -19,24 +19,34 @@ var _ = grift.Namespace("db", func() {
 				return errors.WithStack(err)
 			}
 
-			// Create UUID
-			id, _ := uuid.NewV4()
-
-			user := &models.User{
-				ID:        id,
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-				Email:     "admin@example.com",
-				Password:  "admin",
-				Role:      "admin",
-				Parent:    &models.Parent{},
-				Teacher:   &models.Teacher{},
+			// Create parents
+			if err := createParents(tx); err != nil {
+				return err
 			}
 
-			// Validate the data from the html form
-			_, err := tx.ValidateAndCreate(user)
-			if err != nil {
-				return errors.WithStack(err)
+			// Create teachers
+			if err := createTeachers(tx); err != nil {
+				return err
+			}
+
+			// Create admins
+			if err := createAdmins(tx); err != nil {
+				return err
+			}
+
+			// Create students
+			if err := createStudents(tx); err != nil {
+				return err
+			}
+
+			// Create classes
+			if err := createClasses(tx); err != nil {
+				return err
+			}
+
+			// Create appointments
+			if err := createAppointments(tx); err != nil {
+				return err
 			}
 
 			return nil
@@ -44,3 +54,13 @@ var _ = grift.Namespace("db", func() {
 	})
 
 })
+
+func generateID() uuid.UUID {
+	id, _ := uuid.NewV4()
+	return id
+}
+
+func parseDate(d string) time.Time {
+	t, _ := time.Parse(time.RFC3339, d)
+	return t
+}
