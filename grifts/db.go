@@ -49,6 +49,11 @@ var _ = grift.Namespace("db", func() {
 				return err
 			}
 
+			// Create grades
+			if err := createGrades(tx); err != nil {
+				return err
+			}
+
 			return nil
 		})
 	})
