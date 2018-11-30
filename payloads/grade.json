@@ -1,0 +1,14 @@
+{
+  "data": {
+    "type": "grades",
+    "attributes": {
+      "subject": "math",
+      "grade": 9
+    },
+    "relationships": {
+      "student": {
+        "data": { "type": "students", "id": "e22ee61e-c35f-437d-a831-f45207706de5" }
+      }
+    }
+  }
+}

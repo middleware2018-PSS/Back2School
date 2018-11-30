@@ -2,17 +2,23 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 )
 
 type Grade struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `db:"id" jsonapi:"primary,grades"`
+	CreatedAt time.Time `db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt time.Time `db:"updated_at" jsonapi:"attr,created_at,iso8601"`
+	Subject   string    `db:"subject" jsonapi:"attr,subject"`
+	Grade     int       `db:"grade" jsonapi:"attr,grade"`
+	StudentID uuid.UUID `db:"student_id"`
+	Student   *Student  `belongs_to:"student" jsonapi:"relation,student,omitempty"`
 }
 
 // String is not required by pop and may be deleted
@@ -22,7 +28,7 @@ func (g Grade) String() string {
 }
 
 // Grades is not required by pop and may be deleted
-type Grades []Grade
+type Grades []*Grade
 
 // String is not required by pop and may be deleted
 func (g Grades) String() string {
@@ -46,4 +52,21 @@ func (g *Grade) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (g *Grade) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// JSONAPILinks implements the Linkable interface for a parent
+func (grade Grade) JSONAPILinks() *jsonapi.Links {
+	return &jsonapi.Links{
+		"self": fmt.Sprintf("http://%s/grades/%s", APIUrl, grade.ID.String()),
+	}
+}
+
+// Invoked for each relationship defined on the Grade struct when marshaled
+func (grade Grade) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+	if relation == "student" {
+		return &jsonapi.Links{
+			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, grade.StudentID.String()),
+		}
+	}
+	return nil
 }

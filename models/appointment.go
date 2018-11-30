@@ -23,7 +23,6 @@ type Appointment struct {
 	Parents   []*Parent `many_to_many:"parents_appointments" jsonapi:"relation,parents,omitempty"`
 	Student   *Student  `belongs_to:"student" jsonapi:"relation,student,omitempty"`
 	StudentID uuid.UUID `db:"student_id"`
-	//StudentID uuid.UUID `db:"teacher_id"`
 }
 
 // String is not required by pop and may be deleted

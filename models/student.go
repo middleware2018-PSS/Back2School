@@ -24,8 +24,9 @@ type Student struct {
 	// Relationships
 	Parents      []*Parent      `many_to_many:"parents_students" jsonapi:"relation,parents,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
-	Class        *Class         `belongs_to:"class" jsonapi:"relation,class,omitempty"`
 	ClassID      nulls.UUID     `db:"class_id"`
+	Class        *Class         `belongs_to:"class" jsonapi:"relation,class,omitempty"`
+	Grades       []*Grade       `has_many:"grades" jsonapi:"relation,grades,omitempty"`
 }
 
 // String is not required by pop and may be deleted
