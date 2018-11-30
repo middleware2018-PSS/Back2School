@@ -35,7 +35,7 @@ func (t Teacher) String() string {
 }
 
 // Teachers is not required by pop and may be deleted
-type Teachers []Teacher
+type Teachers []*Teacher
 
 // String is not required by pop and may be deleted
 func (t Teachers) String() string {

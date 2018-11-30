@@ -50,31 +50,11 @@ func (v TeachersResource) List(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Attatch users to teachers
-	for i, t := range *teachers {
-		user := &models.User{}
-		if err := tx.Select("id", "created_at", "updated_at", "email", "role").
-			Find(user, t.UserID); err != nil {
-			return apiError(c, "Internal Error",
-				"Internal Server Error", http.StatusInternalServerError, err)
-		}
-		t.User = user
-		// Save it back to the teachers list
-		(*teachers)[i] = t
-	}
-
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	// Convert the slice of teachers to a slice of pointers to teachers
-	// because Pop wants the former, jsonapi, the latter
-	teachersp := []*models.Teacher{}
-	for i := 0; i < len(*teachers); i++ {
-		teachersp = append(teachersp, &((*teachers)[i]))
-	}
-
 	res := new(bytes.Buffer)
-	err := jsonapi.MarshalPayload(res, teachersp)
+	err := jsonapi.MarshalPayload(res, *teachers)
 	if err != nil {
 		log.Debug("Problem marshalling teachers in actions.TeachersResource.List")
 		return apiError(c, "Internal Error preparing the response payload",
@@ -99,7 +79,7 @@ func (v TeachersResource) Show(c buffalo.Context) error {
 	teacher := &models.Teacher{}
 
 	// To find the Teacher the parameter teacher_id is used.
-	if err := tx.Find(teacher, c.Param("teacher_id")); err != nil {
+	if err := tx.Eager().Find(teacher, c.Param("teacher_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}
