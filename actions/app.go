@@ -84,6 +84,7 @@ func App() *buffalo.App {
 		api.Resource("/appointments", AppointmentsResource{})
 		api.Resource("/classes", ClassesResource{})
 		api.Resource("/grades", GradesResource{})
+		api.Resource("/notifications", NotificationsResource{})
 	}
 
 	return app
