@@ -34,10 +34,10 @@ func (v UsersResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
-	// Allocate an empty slice of Users
 	users := &models.Users{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
@@ -47,27 +47,23 @@ func (v UsersResource) List(c buffalo.Context) error {
 	// Retrieve all Users from the DB
 	if err := q.Select("id", "created_at", "updated_at", "email", "role").
 		All(users); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal Error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	// Convert the slice of users to a slice of pointers to users
-	// because Pop wants the former, jsonapi, the latter
-	usersp := []*models.User{}
-	for i := 0; i < len(*users); i++ {
-		usersp = append(usersp, &((*users)[i]))
-	}
-
 	res := new(bytes.Buffer)
-	err := jsonapi.MarshalPayload(res, usersp)
+	err := jsonapi.MarshalPayload(res, *users)
 	if err != nil {
-		log.Println("Problem marshalling users")
-		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+		log.Debug("Problem marshalling users in actions.UsersResource.List")
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
-	return c.Render(200, r.Func("application/json", customJSONRenderer(res.String())))
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one User. This function is mapped to
@@ -76,7 +72,8 @@ func (v UsersResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	// Allocate an empty User
@@ -84,16 +81,17 @@ func (v UsersResource) Show(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	// We omit the Password column because we don't want to return that
-	if err := tx.Select("id", "created_at", "updated_at", "email", "role").
+	if err := tx.Eager().Select("id", "created_at", "updated_at", "email", "role").
 		Find(user, c.Param("user_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
 	res := new(bytes.Buffer)
 	err := jsonapi.MarshalPayload(res, user)
 	if err != nil {
-		log.Println("Problem marshalling the User in Show()")
-		return c.Render(http.StatusInternalServerError, r.JSON(err.Error()))
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
 	return c.Render(200, r.Func("application/json",
@@ -108,35 +106,50 @@ func (v UsersResource) Create(c buffalo.Context) error {
 
 	// Unmarshall the JSON payload into a User struct
 	if err := jsonapi.UnmarshalPayload(c.Request().Body, user); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Validate the data from the payload
 	verrs, err := tx.ValidateAndCreate(user)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
 	}
 
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, user))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "User was created successfully")
+	// Log user creation
+	log.Debug("User created in actions.UsersResource.Create:\n%v\n", user)
 
-	// and redirect to the users index page
-	return c.Render(201, r.Auto(c, user))
+	// Reload the user to rebuild relationships
+	if err := tx.Eager().
+		Select("id", "created_at", "updated_at", "email", "role").
+		Find(user, user.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	// If there are no errors return the User resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, user)
+	if err != nil {
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
+
 }
 
 // Edit renders a edit form for a User. This function is
@@ -164,40 +177,55 @@ func (v UsersResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty User
 	user := &models.User{}
 
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot update the resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// Bind User to the html form elements
-	if err := c.Bind(user); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a User struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, user); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Update the user in the DB
 	verrs, err := tx.ValidateAndUpdate(user)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, user))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "User was updated successfully")
+	// Reload the user to rebuild relationships
+	if err := tx.Eager().
+		Select("id", "created_at", "updated_at", "email", "role").
+		Find(user, user.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
 
-	// and redirect to the users index page
-	return c.Render(200, r.Auto(c, user))
+	// Marshal the resource and send it back
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, user)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Destroy deletes a User from the DB. This function is mapped
@@ -206,7 +234,8 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty User
@@ -214,16 +243,16 @@ func (v UsersResource) Destroy(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
 	if err := tx.Destroy(user); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "User was destroyed successfully")
-
-	// Redirect to the users index page
-	return c.Render(200, r.Auto(c, user))
+	// Redirect to the parents index page
+	return c.Render(204, r.Func("application/json",
+		customJSONRenderer("")))
 }

@@ -22,14 +22,15 @@ type UserAuth struct {
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,users"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	Email     string    `json:"email" db:"email" jsonapi:"attr,email"`
-	Password  string    `json:"password" db:"password" jsonapi:"attr,password,omitempty"`
-	Role      string    `json:"role" db:"role" jsonapi:"attr,role"`
-	Parent    *Parent   `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent,omitempty"`
-	Teacher   *Teacher  `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher,omitempty"`
+	ID            uuid.UUID       `json:"id" db:"id" jsonapi:"primary,users"`
+	CreatedAt     time.Time       `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt     time.Time       `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
+	Email         string          `json:"email" db:"email" jsonapi:"attr,email"`
+	Password      string          `json:"password" db:"password" jsonapi:"attr,password,omitempty"`
+	Role          string          `json:"role" db:"role" jsonapi:"attr,role"`
+	Parent        *Parent         `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent,omitempty"`
+	Teacher       *Teacher        `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher,omitempty"`
+	Notifications []*Notification `many_to_many:"users_notifications" jsonapi:"relation,notifications,omitempty"`
 }
 
 // String is not required by pop and may be deleted
@@ -39,7 +40,7 @@ func (u User) String() string {
 }
 
 // Users is not required by pop and may be deleted
-type Users []User
+type Users []*User
 
 // String is not required by pop and may be deleted
 func (u Users) String() string {
@@ -78,4 +79,15 @@ func (user User) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
 		"self": fmt.Sprintf("http://%s/users/%s", APIUrl, user.ID.String()),
 	}
+}
+
+// Invoked for each relationship defined on the User struct when marshaled
+func (user User) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+	if relation == "notifications" {
+		return &jsonapi.Links{
+			"notifications": fmt.Sprintf("http://%s/users/%s/notifications",
+				APIUrl, user.ID.String()),
+		}
+	}
+	return nil
 }
