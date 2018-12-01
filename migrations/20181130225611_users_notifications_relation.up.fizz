@@ -1,0 +1,11 @@
+create_table("users_notifications") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("user_id", "uuid", {})
+	t.Column("notification_id", "uuid", {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
+	t.ForeignKey("notification_id", {"notifications": ["id"]}, {
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
+}

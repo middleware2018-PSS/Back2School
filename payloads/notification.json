@@ -1,0 +1,17 @@
+{
+  "data": {
+    "type": "notifications",
+    "attributes": {
+      "time": "2018-11-30T23:30:00Z",
+      "message": "Notification test"
+    },
+    "relationships": {
+      "users": {
+        "data": [
+            { "type": "users", "id": "63ec3035-0931-45d8-a208-fe1bb09edda6" },
+            { "type": "users", "id": "d5161fa4-381a-4691-be4a-64c1b9166617" }
+        ]
+      }
+    }
+  }
+}

@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"bytes"
+	"net/http"
+
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/middleware2018-PSS/back2_school/models"
@@ -30,7 +34,8 @@ func (v NotificationsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	notifications := &models.Notifications{}
@@ -41,13 +46,23 @@ func (v NotificationsResource) List(c buffalo.Context) error {
 
 	// Retrieve all Notifications from the DB
 	if err := q.All(notifications); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal Error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, notifications))
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, *notifications)
+	if err != nil {
+		log.Debug("Problem marshalling notifications in actions.NotificationsResource.List")
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Show gets the data for one Notification. This function is mapped to
@@ -56,18 +71,33 @@ func (v NotificationsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
 	}
 
 	// Allocate an empty Notification
 	notification := &models.Notification{}
 
 	// To find the Notification the parameter notification_id is used.
-	if err := tx.Find(notification, c.Param("notification_id")); err != nil {
-		return c.Error(404, err)
+	if err := tx.Eager().Find(notification, c.Param("notification_id")); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	return c.Render(200, r.Auto(c, notification))
+	// Remove user passwords from the response
+	for _, user := range notification.Users {
+		(*user).Password = ""
+	}
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, notification)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // New renders the form for creating a new Notification.
@@ -82,37 +112,55 @@ func (v NotificationsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Notification
 	notification := &models.Notification{}
 
-	// Bind notification to the html form elements
-	if err := c.Bind(notification); err != nil {
-		return errors.WithStack(err)
+	// Unmarshal notification from the json payload
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, notification); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
-	// Validate the data from the html form
+	// Create and save the notification
 	verrs, err := tx.ValidateAndCreate(notification)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the new.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, notification))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Notification was created successfully")
+	// Log notification creation
+	log.Debug("Notification created in actions.NotificationsResource.Create:\n%v\n", notification)
 
-	// and redirect to the notifications index page
-	return c.Render(201, r.Auto(c, notification))
+	// Reload the notification to rebuild relationships
+	if err := tx.Eager().Find(notification, notification.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	// Remove user passwords from the response
+	for _, user := range notification.Users {
+		(*user).Password = ""
+	}
+
+	// If there are no errors return the Notification resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, notification)
+	if err != nil {
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Edit renders a edit form for a Notification. This function is
@@ -140,40 +188,58 @@ func (v NotificationsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Notification
 	notification := &models.Notification{}
 
 	if err := tx.Find(notification, c.Param("notification_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot update the resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
-	// Bind Notification to the html form elements
-	if err := c.Bind(notification); err != nil {
-		return errors.WithStack(err)
+	// Unmarshall the JSON payload into a Notification struct
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, notification); err != nil {
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Update the notification in the DB
 	verrs, err := tx.ValidateAndUpdate(notification)
 	if err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error",
+			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Check for validation errors
 	if verrs.HasAny() {
-		// Make the errors available inside the html template
-		c.Set("errors", verrs)
-
-		// Render again the edit.html template that the user can
-		// correct the input.
-		return c.Render(422, r.Auto(c, notification))
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
-	// If there are no errors set a success message
-	c.Flash().Add("success", "Notification was updated successfully")
+	// Reload the notification to rebuild relationships
+	if err := tx.Eager().Find(notification, notification.ID); err != nil {
+		return apiError(c, "The requested resource cannot be found",
+			"Not Found", http.StatusNotFound, err)
+	}
 
-	// and redirect to the notifications index page
-	return c.Render(200, r.Auto(c, notification))
+	// Remove user passwords from the response
+	for _, user := range notification.Users {
+		(*user).Password = ""
+	}
+
+	// Marshal the resource and send it back
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, notification)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
 
 // Destroy deletes a Notification from the DB. This function is mapped
@@ -182,7 +248,8 @@ func (v NotificationsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Allocate an empty Notification
@@ -190,16 +257,16 @@ func (v NotificationsResource) Destroy(c buffalo.Context) error {
 
 	// To find the Notification the parameter notification_id is used.
 	if err := tx.Find(notification, c.Param("notification_id")); err != nil {
-		return c.Error(404, err)
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
 	}
 
 	if err := tx.Destroy(notification); err != nil {
-		return errors.WithStack(err)
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
 	}
 
-	// If there are no errors set a flash message
-	c.Flash().Add("success", "Notification was destroyed successfully")
-
-	// Redirect to the notifications index page
-	return c.Render(200, r.Auto(c, notification))
+	// Redirect to the parents index page
+	return c.Render(204, r.Func("application/json",
+		customJSONRenderer("")))
 }

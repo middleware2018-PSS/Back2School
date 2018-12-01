@@ -114,6 +114,21 @@ CREATE TABLE public.grades (
 ALTER TABLE public.grades OWNER TO postgres;
 
 --
+-- Name: notifications; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.notifications (
+    id uuid NOT NULL,
+    "time" timestamp without time zone NOT NULL,
+    message character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.notifications OWNER TO postgres;
+
+--
 -- Name: parents; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -237,6 +252,21 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
+-- Name: users_notifications; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users_notifications (
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    notification_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.users_notifications OWNER TO postgres;
+
+--
 -- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -266,6 +296,14 @@ ALTER TABLE ONLY public.classes
 
 ALTER TABLE ONLY public.grades
     ADD CONSTRAINT grades_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -314,6 +352,14 @@ ALTER TABLE ONLY public.teachers_classes
 
 ALTER TABLE ONLY public.teachers
     ADD CONSTRAINT teachers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_notifications users_notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users_notifications
+    ADD CONSTRAINT users_notifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -461,6 +507,22 @@ ALTER TABLE ONLY public.teachers_classes
 
 ALTER TABLE ONLY public.teachers
     ADD CONSTRAINT teachers_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: users_notifications users_notifications_notification_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users_notifications
+    ADD CONSTRAINT users_notifications_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES public.notifications(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: users_notifications users_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users_notifications
+    ADD CONSTRAINT users_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

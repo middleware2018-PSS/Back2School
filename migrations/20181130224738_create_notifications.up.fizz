@@ -1,3 +1,5 @@
 create_table("notifications") {
 	t.Column("id", "uuid", {"primary": true})
+	t.Column("time", "datetime", {})
+	t.Column("message", "string", {})
 }
