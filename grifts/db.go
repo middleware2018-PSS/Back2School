@@ -54,6 +54,11 @@ var _ = grift.Namespace("db", func() {
 				return err
 			}
 
+			// Create notifications
+			if err := createNotifications(tx); err != nil {
+				return err
+			}
+
 			return nil
 		})
 	})
