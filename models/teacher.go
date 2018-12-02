@@ -23,7 +23,7 @@ type Teacher struct {
 	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
 	// Relationships
 	UserID       uuid.UUID      `db:"user_id"`
-	User         *User          `db:"-" jsonapi:"relation,user,omitempty"`
+	User         *User          `belongs_to:"user" jsonapi:"relation,user,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
 	Classes      []*Class       `many_to_many:"teachers_classes" jsonapi:"relation,classes,omitempty"`
 }

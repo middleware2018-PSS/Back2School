@@ -30,6 +30,7 @@ type User struct {
 	Role          string          `json:"role" db:"role" jsonapi:"attr,role"`
 	Parent        *Parent         `has_one:"parent" fk_id:"user_id" jsonapi:"relation,parent,omitempty"`
 	Teacher       *Teacher        `has_one:"teacher" fk_id:"user_id" jsonapi:"relation,teacher,omitempty"`
+	Admin         *Admin          `has_one:"admin" fk_id:"user_id" jsonapi:"relation,admin,omitempty"`
 	Notifications []*Notification `many_to_many:"users_notifications" jsonapi:"relation,notifications,omitempty"`
 }
 
@@ -87,6 +88,12 @@ func (user User) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 		return &jsonapi.Links{
 			"notifications": fmt.Sprintf("http://%s/users/%s/notifications",
 				APIUrl, user.ID.String()),
+		}
+	}
+	if relation == "admin" {
+		return &jsonapi.Links{
+			"admin": fmt.Sprintf("http://%s/admins/%s",
+				APIUrl, user.Admin.ID.String()),
 		}
 	}
 	return nil

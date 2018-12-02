@@ -94,6 +94,8 @@ func (v UsersResource) Show(c buffalo.Context) error {
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	log.Println(user)
+
 	return c.Render(200, r.Func("application/json",
 		customJSONRenderer(res.String())))
 }

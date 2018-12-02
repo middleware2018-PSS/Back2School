@@ -21,7 +21,7 @@ type Admin struct {
 	Name      string    `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname   string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
 	UserID    uuid.UUID `db:"user_id"`
-	User      *User     `db:"-" jsonapi:"relation,user,omitempty"`
+	User      *User     `belongs_to:"user" jsonapi:"relation,user,omitempty"`
 }
 
 // String is not required by pop and may be deleted
