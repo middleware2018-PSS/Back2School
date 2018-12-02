@@ -5,8 +5,8 @@ create_table("teachers") {
 	t.Column("surname", "string", {})
 	t.Column("user_id", "uuid", {})
 	t.ForeignKey("user_id", {"users": ["id"]}, {
-        "on_delete": "cascade",
-        "on_update": "cascade"})
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
 }
 
 add_index("teachers", "email", {"unique": true})
