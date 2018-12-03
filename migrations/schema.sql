@@ -33,13 +33,13 @@ ALTER TYPE public.role OWNER TO postgres;
 --
 
 CREATE TYPE public.subject AS ENUM (
-    'math',
-    'science',
-    'history',
-    'geography',
-    'art',
-    'music',
-    'english'
+    'Math',
+    'Science',
+    'History',
+    'Geography',
+    'Art',
+    'Music',
+    'English'
 );
 
 
@@ -212,6 +212,7 @@ CREATE TABLE public.teachers (
     email character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
     surname character varying(255) NOT NULL,
+    subject public.subject NOT NULL,
     user_id uuid NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL

@@ -3,6 +3,7 @@ create_table("teachers") {
 	t.Column("email", "string", {})
 	t.Column("name", "string", {})
 	t.Column("surname", "string", {})
+	t.Column("subject", "subject", {})
 	t.Column("user_id", "uuid", {})
 	t.ForeignKey("user_id", {"users": ["id"]}, {
         "on_delete": "CASCADE",

@@ -21,6 +21,7 @@ type Teacher struct {
 	Password string `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
 	Name     string `json:"name" db:"name" jsonapi:"attr,name"`
 	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	Subject  string `json:"subject" db:"subject" jsonapi:"attr,subject"`
 	// Relationships
 	UserID       uuid.UUID      `db:"user_id"`
 	User         *User          `belongs_to:"user" jsonapi:"relation,user,omitempty"`

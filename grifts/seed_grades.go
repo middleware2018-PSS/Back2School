@@ -19,7 +19,7 @@ var grade *models.Grade = &models.Grade{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
-	Subject:   "math",
+	Subject:   "Math",
 	Grade:     9,
 	Student:   lisa_doe,
 }

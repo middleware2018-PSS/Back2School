@@ -45,6 +45,7 @@ var paula_miller *models.Teacher = &models.Teacher{
 	Password:  "password",
 	Name:      "Paula",
 	Surname:   "Miller",
+	Subject:   "Math",
 }
 
 var robert_smith *models.Teacher = &models.Teacher{
@@ -55,4 +56,5 @@ var robert_smith *models.Teacher = &models.Teacher{
 	Password:  "password",
 	Name:      "Robert",
 	Surname:   "Smith",
+	Subject:   "English",
 }
