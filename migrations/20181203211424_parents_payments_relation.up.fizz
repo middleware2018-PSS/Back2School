@@ -1,0 +1,11 @@
+create_table("parents_payments") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("parent_id", "uuid", {})
+	t.Column("payment_id", "uuid", {})
+	t.ForeignKey("parent_id", {"parents": ["id"]}, {
+        "on_delete": "SET NULL",
+        "on_update": "CASCADE"})
+	t.ForeignKey("payment_id", {"payments": ["id"]}, {
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
+}

@@ -27,6 +27,7 @@ type Student struct {
 	ClassID      nulls.UUID     `db:"class_id"`
 	Class        *Class         `belongs_to:"class" jsonapi:"relation,class,omitempty"`
 	Grades       []*Grade       `has_many:"grades" jsonapi:"relation,grades,omitempty"`
+	Payment      *Payment       `has_one:"payment" fk_id:"student_id" jsonapi:"relation,payment,omitempty"`
 }
 
 // String is not required by pop and may be deleted

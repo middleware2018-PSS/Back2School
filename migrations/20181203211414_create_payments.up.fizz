@@ -1,3 +1,10 @@
 create_table("payments") {
 	t.Column("id", "uuid", {"primary": true})
+	t.Column("issue_date", "datetime", {})
+	t.Column("due_date", "datetime", {})
+	t.Column("amount", "float", {})
+	t.Column("student_id", "uuid", {})
+	t.ForeignKey("student_id", {"students": ["id"]}, {
+        "on_delete": "SET NULL",
+        "on_update": "CASCADE"})
 }

@@ -161,6 +161,21 @@ CREATE TABLE public.parents_appointments (
 ALTER TABLE public.parents_appointments OWNER TO postgres;
 
 --
+-- Name: parents_payments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.parents_payments (
+    id uuid NOT NULL,
+    parent_id uuid NOT NULL,
+    payment_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.parents_payments OWNER TO postgres;
+
+--
 -- Name: parents_students; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -174,6 +189,23 @@ CREATE TABLE public.parents_students (
 
 
 ALTER TABLE public.parents_students OWNER TO postgres;
+
+--
+-- Name: payments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.payments (
+    id uuid NOT NULL,
+    issue_date timestamp without time zone NOT NULL,
+    due_date timestamp without time zone NOT NULL,
+    amount numeric NOT NULL,
+    student_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.payments OWNER TO postgres;
 
 --
 -- Name: schema_migration; Type: TABLE; Schema: public; Owner: postgres
@@ -316,6 +348,14 @@ ALTER TABLE ONLY public.parents_appointments
 
 
 --
+-- Name: parents_payments parents_payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_payments
+    ADD CONSTRAINT parents_payments_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: parents parents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -329,6 +369,14 @@ ALTER TABLE ONLY public.parents
 
 ALTER TABLE ONLY public.parents_students
     ADD CONSTRAINT parents_students_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: payments payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
 
 
 --
@@ -455,6 +503,22 @@ ALTER TABLE ONLY public.parents_appointments
 
 
 --
+-- Name: parents_payments parents_payments_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_payments
+    ADD CONSTRAINT parents_payments_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.parents(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: parents_payments parents_payments_payment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.parents_payments
+    ADD CONSTRAINT parents_payments_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.payments(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: parents_students parents_students_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -476,6 +540,14 @@ ALTER TABLE ONLY public.parents_students
 
 ALTER TABLE ONLY public.parents
     ADD CONSTRAINT parents_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: payments payments_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --

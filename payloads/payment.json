@@ -1,0 +1,21 @@
+{
+  "data": {
+    "type": "payment",
+    "attributes": {
+      "issue_date": "2018-11-27T11:30:00Z",
+      "due_date": "2019-11-27T11:30:00Z",
+      "amount": 1786.28
+    },
+    "relationships": {
+      "parents": {
+        "data": [
+            { "type": "parents", "id": "b8421bd5-ad9f-48dc-83fb-bb5b8df4342a" },
+            { "type": "parents", "id": "6e8f0c9a-d07d-46f9-867e-5decc27276ec" }
+        ]
+      },
+      "student": {
+        "data": { "type": "students", "id": "1ca33b60-7620-47d9-b5af-886492951e11" }
+      }
+    }
+  }
+}

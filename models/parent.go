@@ -31,6 +31,7 @@ type Parent struct {
 	// Relationships
 	Students     []*Student     `many_to_many:"parents_students" jsonapi:"relation,students,omitempty"`
 	Appointments []*Appointment `many_to_many:"parents_appointments" jsonapi:"relation,appointments,omitempty"`
+	Payments     []*Payment     `many_to_many:"parents_payments" jsonapi:"relation,payments,omitempty"`
 }
 
 // Return a string representation of the Parent resource
