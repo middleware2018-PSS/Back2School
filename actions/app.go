@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"fmt"
+
 	"github.com/casbin/casbin"
 	"github.com/gobuffalo/buffalo"
 	popmw "github.com/gobuffalo/buffalo-pop/pop/popmw"
@@ -73,14 +75,13 @@ func App() *buffalo.App {
 		api.Use(authorizer)
 		//api.Middleware.Skip(authorizer, UsersAuth)
 
+		api.GET("/", ListRoutes)
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
 		api.Resource("/admins", AdminsResource{})
 		api.Resource("/parents", ParentsResource{})
 		api.Resource("/teachers", TeachersResource{})
 		api.Resource("/students", StudentsResource{})
-		//t.Resource("/students", StudentsResource{}) // parents->students nested resource
-		//app.Resource("/students", StudentsResource{})
 		api.Resource("/appointments", AppointmentsResource{})
 		api.Resource("/classes", ClassesResource{})
 		api.Resource("/grades", GradesResource{})
@@ -102,4 +103,13 @@ func forceSSL() buffalo.MiddlewareFunc {
 		SSLRedirect:     ENV == "production",
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
+}
+
+func ListRoutes(c buffalo.Context) error {
+	var routesList []string
+	for _, r := range app.Routes() {
+		entry := fmt.Sprintf("%s %s", r.Method, r.Path)
+		routesList = append(routesList, entry)
+	}
+	return c.Render(200, r.JSON(routesList))
 }
