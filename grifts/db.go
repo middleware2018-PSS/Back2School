@@ -59,6 +59,11 @@ var _ = grift.Namespace("db", func() {
 				return err
 			}
 
+			// Create payments
+			if err := createPayments(tx); err != nil {
+				return err
+			}
+
 			return nil
 		})
 	})
