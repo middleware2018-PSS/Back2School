@@ -81,7 +81,7 @@ func (v UsersResource) Show(c buffalo.Context) error {
 
 	// To find the User the parameter user_id is used.
 	// We omit the Password column because we don't want to return that
-	if err := tx.Eager().Select("id", "created_at", "updated_at", "email", "role").
+	if err := tx.Eager("Notifications").Select("id", "created_at", "updated_at", "email", "role").
 		Find(user, c.Param("user_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
@@ -135,7 +135,7 @@ func (v UsersResource) Create(c buffalo.Context) error {
 	log.Debug("User created in actions.UsersResource.Create:\n%v\n", user)
 
 	// Reload the user to rebuild relationships
-	if err := tx.Eager().
+	if err := tx.Eager("Notifications").
 		Select("id", "created_at", "updated_at", "email", "role").
 		Find(user, user.ID); err != nil {
 		return apiError(c, "The requested resource cannot be found",
@@ -211,7 +211,7 @@ func (v UsersResource) Update(c buffalo.Context) error {
 	}
 
 	// Reload the user to rebuild relationships
-	if err := tx.Eager().
+	if err := tx.Eager("Notifications").
 		Select("id", "created_at", "updated_at", "email", "role").
 		Find(user, user.ID); err != nil {
 		return apiError(c, "The requested resource cannot be found",
