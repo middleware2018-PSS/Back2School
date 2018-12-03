@@ -3,10 +3,12 @@ package actions
 import (
 	"bytes"
 	"net/http"
+	"time"
 
 	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/pkg/errors"
 )
@@ -254,4 +256,55 @@ func (v PaymentsResource) Destroy(c buffalo.Context) error {
 	// Redirect to the parents index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
+}
+
+func FakePay(c buffalo.Context) error {
+	type PaymentConfirm struct {
+		ID        uuid.UUID `json:"-" db:"-" jsonapi:"primary,payment_confirm"`
+		DueDate   time.Time `json:"-" db:"-" jsonapi:"attr,due_date,iso8601"`
+		IssueDate time.Time `json:"-" db:"-" jsonapi:"attr,issue_date,iso8601"`
+		Amount    float64   `json:"-" db:"-" jsonapi:"attr,amount"`
+		Message   string    `json:"-" db:"-" jsonapi:"attr,message"`
+		Relation  *jsonapi.Links
+	}
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Payment
+	payment := &models.Payment{}
+
+	// To find the Payment the parameter payment_id is used.
+	if err := tx.Find(payment, c.Param("payment_id")); err != nil {
+		return apiError(c, "Cannot simulate payment. Resource not found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	id, _ := uuid.NewV4()
+	paymentConfirm := PaymentConfirm{
+		ID:        id,
+		DueDate:   payment.DueDate,
+		IssueDate: payment.IssueDate,
+		Amount:    payment.Amount,
+		Message:   "Payment confirmed, thank you",
+	}
+
+	if err := tx.Destroy(payment); err != nil {
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, err)
+	}
+
+	// Marshal the resource and send it back
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, &paymentConfirm)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }

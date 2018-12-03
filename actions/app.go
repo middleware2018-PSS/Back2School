@@ -86,6 +86,7 @@ func App() *buffalo.App {
 		api.Resource("/grades", GradesResource{})
 		api.Resource("/notifications", NotificationsResource{})
 		api.Resource("/payments", PaymentsResource{})
+		api.POST("/payments/{payment_id}/pay", FakePay)
 	}
 
 	return app
