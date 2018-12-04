@@ -30,6 +30,16 @@ type UsersResource struct {
 
 // List gets all Users. This function is mapped to the path
 // GET /users
+// @Summary List users
+// @Description get the list of all users
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User
+// @Failure 400 {object} jsonapi.ErrorObject
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /users [get]
 func (v UsersResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

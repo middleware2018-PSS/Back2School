@@ -18,6 +18,10 @@ import (
 	authorization "github.com/middleware2018-PSS/back2_school/middleware/authorization"
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/rs/cors"
+
+	mwswaggo "github.com/cippaciong/mw-swaggo"
+	"github.com/cippaciong/mw-swaggo/swaggerFiles"
+	_ "github.com/middleware2018-PSS/back2_school/docs"
 )
 
 // ENV is used to help switch settings based on where the
@@ -28,9 +32,20 @@ var app *buffalo.App
 // Create a new instance of the logger
 var log = logrus.New()
 
-// App is where all routes and middleware for buffalo
-// should be defined. This is the nerve center of your
-// application.
+// @title Back2School API
+// @version 1.0
+// @description This is an api to manage online services for a school.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url https://github.com/middleware2018-PSS/Back2School
+// @contact.email sardelli.tommaso@gmail.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost
+// @BasePath /api/v1
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(buffalo.Options{
@@ -58,6 +73,7 @@ func App() *buffalo.App {
 		app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/", HomeHandler)
+		app.GET("/swagger/{doc:.*}", mwswaggo.WrapHandler(swaggerFiles.Handler))
 
 		api := app.Group("/api/v1")
 

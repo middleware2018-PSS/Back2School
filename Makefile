@@ -30,3 +30,6 @@ resetdb: ## Drop all tables, re-run migrations and re-seed initial data
 
 psql: ## Run psql in a separate container
 	sudo docker run --rm -it --network host -e COLUMNS=$(COLUMNS) -e LINES=$(LINES) postgres psql -h localhost -U postgres
+
+doc: ## Run swaggo to recreate the swagger documentation
+	swag init -g actions/app.go
