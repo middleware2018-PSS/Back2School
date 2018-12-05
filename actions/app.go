@@ -19,9 +19,9 @@ import (
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/rs/cors"
 
-	mwswaggo "github.com/cippaciong/mw-swaggo"
-	"github.com/cippaciong/mw-swaggo/swaggerFiles"
 	_ "github.com/middleware2018-PSS/back2_school/docs"
+	buffaloSwagger "github.com/swaggo/buffalo-swagger"
+	"github.com/swaggo/buffalo-swagger/swaggerFiles"
 )
 
 // ENV is used to help switch settings based on where the
@@ -73,7 +73,7 @@ func App() *buffalo.App {
 		app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/", HomeHandler)
-		app.GET("/swagger/{doc:.*}", mwswaggo.WrapHandler(swaggerFiles.Handler))
+		app.GET("/swagger/{doc:.*}", buffaloSwagger.WrapHandler(swaggerFiles.Handler))
 
 		api := app.Group("/api/v1")
 
