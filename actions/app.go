@@ -1,9 +1,14 @@
 package actions
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
+	"reflect"
+	"strings"
 
 	"github.com/casbin/casbin"
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/buffalo"
 	popmw "github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -11,6 +16,8 @@ import (
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	tokenauth "github.com/gobuffalo/mw-tokenauth"
+	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/unrolled/secure"
 
@@ -96,15 +103,49 @@ func App() *buffalo.App {
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
 		api.Resource("/admins", AdminsResource{})
+
 		api.Resource("/parents", ParentsResource{})
+		api.GET("/parents/{id}/{res:(?:students|appointments|payments)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Parent{})
+		})
+
 		api.Resource("/teachers", TeachersResource{})
+		api.GET("/teachers/{id}/{res:(?:classes|appointments)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Teacher{})
+		})
+
 		api.Resource("/students", StudentsResource{})
+		api.GET("/students/{id}/{res:(?:parents)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Student{})
+		})
+
 		api.Resource("/appointments", AppointmentsResource{})
+		api.GET("/appointments/{id}/{res:(?:parents)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Appointment{})
+		})
+
 		api.Resource("/classes", ClassesResource{})
+		api.GET("/classes/{id}/{res:(?:students|teachers)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Class{})
+		})
+
 		api.Resource("/grades", GradesResource{})
+
 		api.Resource("/notifications", NotificationsResource{})
+		api.GET("/notifications/{id}/{res:(?:users)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Notification{})
+		})
+
 		api.Resource("/payments", PaymentsResource{})
+		api.GET("/payments/{id}/{res:(?:parents)}", func(c buffalo.Context) error {
+			return getLists(c, &models.Payment{})
+		})
+
 		api.POST("/payments/{payment_id}/pay", FakePay)
+		api.GET("{all:.*}", func(c buffalo.Context) error {
+			return c.Render(200, r.Func("application/json",
+				customJSONRenderer("404 Not found")))
+		})
 	}
 
 	return app
@@ -129,4 +170,55 @@ func ListRoutes(c buffalo.Context) error {
 		routesList = append(routesList, entry)
 	}
 	return c.Render(200, r.JSON(routesList))
+}
+
+func getLists(c buffalo.Context, baseres interface{}) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
+	}
+
+	resname := strings.Title(c.Param("res"))
+
+	// To find the Parent the parameter parent_id is used.
+	if err := tx.Eager(resname).Find(baseres, c.Param("id")); err != nil {
+		return apiError(c, "Cannot delete resource. Resource not found",
+			"Not Found", http.StatusNotFound, err)
+	}
+
+	iface := reflect.ValueOf(baseres).Elem().FieldByName(resname).Interface()
+	var val interface{}
+	switch iface.(type) {
+	case []*models.User:
+		val = iface.([]*models.User)
+		for _, u := range val.([]*models.User) {
+			(*u).Password = ""
+		}
+	case []*models.Parent:
+		val = iface.([]*models.Parent)
+	case []*models.Student:
+		val = iface.([]*models.Student)
+	case []*models.Teacher:
+		val = iface.([]*models.Teacher)
+	case []*models.Appointment:
+		val = iface.([]*models.Appointment)
+	case []*models.Payment:
+		val = iface.([]*models.Payment)
+	case []*models.Class:
+		val = iface.([]*models.Class)
+	default:
+		log.Println("SUCKA")
+	}
+
+	res := new(bytes.Buffer)
+	err := jsonapi.MarshalPayload(res, val)
+	if err != nil {
+		return apiError(c, "Internal Error preparing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
 }
