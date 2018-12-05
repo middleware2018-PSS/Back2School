@@ -2,8 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/cippaciong/jsonapi"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -52,4 +54,28 @@ func (c *Class) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (c *Class) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// JSONAPILinks implements the Linkable interface for a class
+func (class Class) JSONAPILinks() *jsonapi.Links {
+	return &jsonapi.Links{
+		"self": fmt.Sprintf("http://%s/classs/%s", APIUrl, class.ID.String()),
+	}
+}
+
+// Invoked for each relationship defined on the Class struct when marshaled
+func (class Class) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+	if relation == "teachers" {
+		return &jsonapi.Links{
+			"teachers": fmt.Sprintf("http://%s/classs/%s/teachers",
+				APIUrl, class.ID.String()),
+		}
+	}
+	if relation == "students" {
+		return &jsonapi.Links{
+			"students": fmt.Sprintf("http://%s/class/%s/students",
+				APIUrl, class.ID.String()),
+		}
+	}
+	return nil
 }
