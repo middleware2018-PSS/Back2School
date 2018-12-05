@@ -79,7 +79,7 @@ func (v StudentsResource) Show(c buffalo.Context) error {
 	student := &models.Student{}
 
 	// To find the Student the parameter student_id is used.
-	if err := tx.Eager().Find(student, c.Param("student_id")); err != nil {
+	if err := tx.Eager("Parents").Find(student, c.Param("student_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}
@@ -135,7 +135,7 @@ func (v StudentsResource) Create(c buffalo.Context) error {
 	log.Debug("Student created in actions.StudentsResource.Create:\n%v\n", student)
 
 	// Reload the student with proper parent information
-	if err := tx.Eager().Find(student, student.ID); err != nil {
+	if err := tx.Eager("Parents").Find(student, student.ID); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}
