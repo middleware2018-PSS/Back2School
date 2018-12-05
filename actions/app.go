@@ -72,7 +72,8 @@ func App() *buffalo.App {
 		// Remove to disable this.
 		app.Use(popmw.Transaction(models.DB))
 
-		app.GET("/", HomeHandler)
+		//app.GET("/", HomeHandler)
+		app.Redirect(301, "/", "/swagger/index.html")
 		app.GET("/swagger/{doc:.*}", buffaloSwagger.WrapHandler(swaggerFiles.Handler))
 
 		api := app.Group("/api/v1")
