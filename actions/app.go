@@ -102,17 +102,22 @@ func App() *buffalo.App {
 		api.GET("/", ListRoutes)
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
+		api.GET("/users/{id}/{res:(?:notifications)}", func(c buffalo.Context) error {
+			return getLists(c, &models.User{})
+		})
 		api.Resource("/admins", AdminsResource{})
 
 		api.Resource("/parents", ParentsResource{})
 		api.GET("/parents/{id}/{res:(?:students|appointments|payments)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Parent{})
 		})
+		api.POST("/parents/{id}/{res:(?:students)}", createNestedResource)
 
 		api.Resource("/teachers", TeachersResource{})
 		api.GET("/teachers/{id}/{res:(?:classes|appointments)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Teacher{})
 		})
+		api.POST("/teachers/{id}/{res:(?:appointments)}", createNestedResource)
 
 		api.Resource("/students", StudentsResource{})
 		api.GET("/students/{id}/{res:(?:parents)}", func(c buffalo.Context) error {
@@ -204,6 +209,8 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 		val = iface.([]*models.Teacher)
 	case []*models.Appointment:
 		val = iface.([]*models.Appointment)
+	case []*models.Notification:
+		val = iface.([]*models.Notification)
 	case []*models.Payment:
 		val = iface.([]*models.Payment)
 	case []*models.Class:
@@ -219,6 +226,69 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
+}
+
+func createNestedResource(c buffalo.Context) error {
+	var val interface{}
+	switch c.Param("res") {
+	case "students":
+		val = &models.Student{}
+	case "appointments":
+		val = &models.Appointment{}
+	default:
+		log.Println("SUCKA")
+	}
+
+	if err := jsonapi.UnmarshalPayload(c.Request().Body, val); err != nil {
+		log.Println("ERROR UNMARSHALLING")
+		return apiError(c, "Error processing the request payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
+	}
+
+	// Create and save the student
+	verrs, err := tx.ValidateAndCreate(val)
+	if err != nil {
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, err)
+	}
+
+	// Check for validation errors
+	if verrs.HasAny() {
+		return apiError(c, "Validation Error", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
+	}
+
+	// Reload the resource with all the relationships
+
+	if c.Param("res") == "students" {
+		if err := tx.Eager("Parents").Find(val, val.(*models.Student).ID); err != nil {
+			return apiError(c, "The requested resource cannot be found",
+				"Not Found", http.StatusNotFound, err)
+		}
+	} else {
+		if err := tx.Eager().Find(val, val.(*models.Appointment).ID); err != nil {
+			return apiError(c, "The requested resource cannot be found",
+				"Not Found", http.StatusNotFound, err)
+		}
+	}
+
+	// If there are no errors return the Student resource
+	res := new(bytes.Buffer)
+	err = jsonapi.MarshalPayload(res, val)
+	if err != nil {
+		log.Println("ERROR MARSHALLING")
+		return apiError(c, "Error processing the response payload",
+			"Internal Server Error", http.StatusInternalServerError, err)
+	}
 	return c.Render(200, r.Func("application/json",
 		customJSONRenderer(res.String())))
 }
