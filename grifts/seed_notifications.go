@@ -9,18 +9,18 @@ import (
 )
 
 func createNotifications(tx *pop.Connection) error {
-	john_doe_user := &models.User{}
-	paula_miller_user := &models.User{}
+	johnDoeUser := &models.User{}
+	paulaMillerUser := &models.User{}
 
-	if err := tx.Find(john_doe_user, john_doe.UserID); err != nil {
+	if err := tx.Find(johnDoeUser, johnDoe.UserID); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := tx.Find(paula_miller_user, paula_miller.UserID); err != nil {
+	if err := tx.Find(paulaMillerUser, paulaMiller.UserID); err != nil {
 		return errors.WithStack(err)
 	}
 
-	notification.Users = []*models.User{john_doe_user, paula_miller_user}
+	notification.Users = []*models.User{johnDoeUser, paulaMillerUser}
 
 	if _, err := tx.ValidateAndCreate(notification); err != nil {
 		return errors.WithStack(err)
@@ -34,5 +34,4 @@ var notification *models.Notification = &models.Notification{
 	UpdatedAt: time.Now(),
 	Message:   "Notification test",
 	Time:      parseDate("2018-11-30T23:30:00Z"),
-	//Users:     []*models.User{john_doe.User, paula_miller.User},
 }

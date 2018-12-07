@@ -12,10 +12,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
-type ParentRelationship struct {
-	ID uuid.UUID `json:"id" db:"id" jsonapi:"primary,parents"`
-}
-
+// Parent is the model for the parents of school students
 type Parent struct {
 	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,parents"`
 	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -78,22 +75,22 @@ func (p *Parent) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
-func (parent Parent) JSONAPILinks() *jsonapi.Links {
+func (p Parent) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/parents/%s", APIUrl, parent.ID.String()),
+		"self": fmt.Sprintf("http://%s/parents/%s", APIUrl, p.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Parent struct when marshaled
-func (parent Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Parent struct when marshaled
+func (p Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "user" {
 		return &jsonapi.Links{
-			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, parent.UserID.String()),
+			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, p.UserID.String()),
 		}
 	}
 	if relation == "students" {
 		return &jsonapi.Links{
-			"students": fmt.Sprintf("http://%s/parents/%s/students", APIUrl, parent.ID.String()),
+			"students": fmt.Sprintf("http://%s/parents/%s/students", APIUrl, p.ID.String()),
 		}
 	}
 	return nil

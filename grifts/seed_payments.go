@@ -22,6 +22,6 @@ var payment *models.Payment = &models.Payment{
 	IssueDate: parseDate("2018-11-27T11:30:00Z"),
 	DueDate:   parseDate("2019-11-27T11:30:00Z"),
 	Amount:    1786.28,
-	Parents:   []*models.Parent{john_doe, abbie_williams},
-	Student:   lisa_doe,
+	Parents:   []*models.Parent{johnDoe, abbieWilliams},
+	Student:   lisaDoe,
 }

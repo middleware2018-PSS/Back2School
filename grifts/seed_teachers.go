@@ -11,14 +11,14 @@ import (
 )
 
 func createTeachers(tx *pop.Connection) error {
-	u_id := createUserFromTeacher(tx, *paula_miller)
-	paula_miller.UserID = u_id
-	if _, err := tx.ValidateAndCreate(paula_miller); err != nil {
+	uID := createUserFromTeacher(tx, *paulaMiller)
+	paulaMiller.UserID = uID
+	if _, err := tx.ValidateAndCreate(paulaMiller); err != nil {
 		return errors.WithStack(err)
 	}
-	u_id = createUserFromTeacher(tx, *robert_smith)
-	robert_smith.UserID = u_id
-	if _, err := tx.ValidateAndCreate(robert_smith); err != nil {
+	uID = createUserFromTeacher(tx, *robertSmith)
+	robertSmith.UserID = uID
+	if _, err := tx.ValidateAndCreate(robertSmith); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
@@ -37,7 +37,7 @@ func createUserFromTeacher(tx *pop.Connection, teacher models.Teacher) uuid.UUID
 	return user.ID
 }
 
-var paula_miller *models.Teacher = &models.Teacher{
+var paulaMiller *models.Teacher = &models.Teacher{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
@@ -48,7 +48,7 @@ var paula_miller *models.Teacher = &models.Teacher{
 	Subject:   "Math",
 }
 
-var robert_smith *models.Teacher = &models.Teacher{
+var robertSmith *models.Teacher = &models.Teacher{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),

@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 )
 
+// Appointment is a model representing appointments between parents and teachers
 type Appointment struct {
 	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,appointments"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -57,27 +58,27 @@ func (a *Appointment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, erro
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
-func (appointment Appointment) JSONAPILinks() *jsonapi.Links {
+func (a Appointment) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/appointments/%s", APIUrl, appointment.ID.String()),
+		"self": fmt.Sprintf("http://%s/appointments/%s", APIUrl, a.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Appointment struct when marshaled
-func (appointment Appointment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Appointment struct when marshaled
+func (a Appointment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "student" {
 		return &jsonapi.Links{
-			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, appointment.Student.ID.String()),
+			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, a.Student.ID.String()),
 		}
 	}
 	if relation == "parents" {
 		return &jsonapi.Links{
-			"parents": fmt.Sprintf("http://%s/appointments/%s/parents", APIUrl, appointment.ID.String()),
+			"parents": fmt.Sprintf("http://%s/appointments/%s/parents", APIUrl, a.ID.String()),
 		}
 	}
 	if relation == "teacher" {
 		return &jsonapi.Links{
-			"teacher": fmt.Sprintf("http://%s/teacher/%s", APIUrl, appointment.Teacher.ID.String()),
+			"teacher": fmt.Sprintf("http://%s/teacher/%s", APIUrl, a.Teacher.ID.String()),
 		}
 	}
 	return nil

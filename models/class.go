@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 )
 
+// Class is the model for a class of students
 type Class struct {
 	ID        uuid.UUID  `json:"id" db:"id" jsonapi:"primary,classes"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -55,24 +56,24 @@ func (c *Class) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a class
-func (class Class) JSONAPILinks() *jsonapi.Links {
+func (c Class) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/classs/%s", APIUrl, class.ID.String()),
+		"self": fmt.Sprintf("http://%s/classs/%s", APIUrl, c.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Class struct when marshaled
-func (class Class) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Class struct when marshaled
+func (c Class) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "teachers" {
 		return &jsonapi.Links{
 			"teachers": fmt.Sprintf("http://%s/classs/%s/teachers",
-				APIUrl, class.ID.String()),
+				APIUrl, c.ID.String()),
 		}
 	}
 	if relation == "students" {
 		return &jsonapi.Links{
 			"students": fmt.Sprintf("http://%s/class/%s/students",
-				APIUrl, class.ID.String()),
+				APIUrl, c.ID.String()),
 		}
 	}
 	return nil

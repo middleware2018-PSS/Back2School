@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 )
 
+// Notification is the model for notification sent by admins to the users
 type Notification struct {
 	ID        uuid.UUID `db:"id" jsonapi:"primary,notifications"`
 	CreatedAt time.Time `db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -54,19 +55,19 @@ func (n *Notification) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
-func (notification Notification) JSONAPILinks() *jsonapi.Links {
+func (n Notification) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
 		"self": fmt.Sprintf("http://%s/notifications/%s",
-			APIUrl, notification.ID.String()),
+			APIUrl, n.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Notification struct when marshaled
-func (notification Notification) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Notification struct when marshaled
+func (n Notification) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "users" {
 		return &jsonapi.Links{
 			"users": fmt.Sprintf("http://%s/notifications/%s/users",
-				APIUrl, notification.ID.String()),
+				APIUrl, n.ID.String()),
 		}
 	}
 	return nil

@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 )
 
+// Payment is the model for fees due or already paied by parents
 type Payment struct {
 	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,payments"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -57,22 +58,22 @@ func (p *Payment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a payment
-func (payment Payment) JSONAPILinks() *jsonapi.Links {
+func (p Payment) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/payments/%s", APIUrl, payment.ID.String()),
+		"self": fmt.Sprintf("http://%s/payments/%s", APIUrl, p.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Payment struct when marshaled
-func (payment Payment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Payment struct when marshaled
+func (p Payment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "parents" {
 		return &jsonapi.Links{
-			"parents": fmt.Sprintf("http://%s/payments/%s/parents", APIUrl, payment.ID.String()),
+			"parents": fmt.Sprintf("http://%s/payments/%s/parents", APIUrl, p.ID.String()),
 		}
 	}
 	if relation == "student" {
 		return &jsonapi.Links{
-			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, payment.StudentID.String()),
+			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, p.StudentID.String()),
 		}
 	}
 	return nil

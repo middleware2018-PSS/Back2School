@@ -21,5 +21,5 @@ var grade *models.Grade = &models.Grade{
 	UpdatedAt: time.Now(),
 	Subject:   "Math",
 	Grade:     9,
-	Student:   lisa_doe,
+	Student:   lisaDoe,
 }

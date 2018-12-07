@@ -1,6 +1,6 @@
-# Welcome to Buffalo!
+Back2School REST API
 
-Thank you for choosing Buffalo for your web development needs.
+[![Go Report Card](https://goreportcard.com/badge/github.com/middleware2018-PSS/Back2School)](https://goreportcard.com/report/github.com/middleware2018-PSS/Back2School)
 
 ## Database Setup
 

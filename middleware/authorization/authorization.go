@@ -11,29 +11,30 @@ import (
 	"github.com/gobuffalo/buffalo"
 )
 
-func isOwner(role_id, r_url, p_url string) bool {
-	if strings.Contains(p_url, ":id") &&
-		strings.Split(r_url, "/")[4] == role_id {
+func isOwner(roleID, rURL, pURL string) bool {
+	if strings.Contains(pURL, ":id") &&
+		strings.Split(rURL, "/")[4] == roleID {
 		return true
 	}
 	return false
 }
 
 func isOwnerFunc(args ...interface{}) (interface{}, error) {
-	role_id := args[0].(string)
-	r_url := args[1].(string)
-	p_url := args[2].(string)
+	roleID := args[0].(string)
+	rURL := args[1].(string)
+	pURL := args[2].(string)
 
-	return (bool)(isOwner(role_id, r_url, p_url)), nil
+	return (bool)(isOwner(roleID, rURL, pURL)), nil
 }
 
+// New creates a new Buffalo Middleware for Casbin
 func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 	return func(next buffalo.Handler) buffalo.Handler {
 		fn := func(c buffalo.Context) error {
-			var role, role_id string
+			var role, roleID string
 			if claims, ok := c.Value("claims").(jwt.MapClaims); ok {
 				role = claims["role"].(string)
-				role_id = claims["role_id"].(string)
+				roleID = claims["roleID"].(string)
 			} else {
 				role = "anonymous"
 			}
@@ -41,7 +42,7 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 			e.AddFunction("isOwner", isOwnerFunc)
 
 			// Casbin rule enforcing
-			res, err := e.EnforceSafe(role_id, c.Value("current_path"), c.Value("method"), role)
+			res, err := e.EnforceSafe(roleID, c.Value("current_path"), c.Value("method"), role)
 			if err != nil {
 				log.Println("Error loading Casbin enforcing")
 				log.Println(err)

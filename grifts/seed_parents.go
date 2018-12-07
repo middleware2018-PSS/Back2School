@@ -11,14 +11,14 @@ import (
 )
 
 func createParents(tx *pop.Connection) error {
-	u_id := createUserFromParent(tx, *john_doe)
-	john_doe.UserID = u_id
-	if _, err := tx.ValidateAndCreate(john_doe); err != nil {
+	uID := createUserFromParent(tx, *johnDoe)
+	johnDoe.UserID = uID
+	if _, err := tx.ValidateAndCreate(johnDoe); err != nil {
 		return errors.WithStack(err)
 	}
-	u_id = createUserFromParent(tx, *abbie_williams)
-	abbie_williams.UserID = u_id
-	if _, err := tx.ValidateAndCreate(abbie_williams); err != nil {
+	uID = createUserFromParent(tx, *abbieWilliams)
+	abbieWilliams.UserID = uID
+	if _, err := tx.ValidateAndCreate(abbieWilliams); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -39,7 +39,7 @@ func createUserFromParent(tx *pop.Connection, parent models.Parent) uuid.UUID {
 	return user.ID
 }
 
-var john_doe *models.Parent = &models.Parent{
+var johnDoe *models.Parent = &models.Parent{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
@@ -49,7 +49,7 @@ var john_doe *models.Parent = &models.Parent{
 	Surname:   "Doe",
 }
 
-var abbie_williams *models.Parent = &models.Parent{
+var abbieWilliams *models.Parent = &models.Parent{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),

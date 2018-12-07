@@ -15,12 +15,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserAuth is a wrapper around User used for authenitcation
 type UserAuth struct {
 	User
 	Email            string `json:"email" db:"-"`
 	PasswordProvided string `json:"password" db:"-"`
 }
 
+// User is the model for users registered to the school system (admins, parents or teachers)
 type User struct {
 	ID            uuid.UUID       `json:"id" db:"id" jsonapi:"primary,users"`
 	CreatedAt     time.Time       `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -51,7 +53,7 @@ func (u Users) String() string {
 
 // CALLBACKS //
 
-// Encrypt user password with bcrypt before
+// BeforeCreate encrypts user password with bcrypt before
 // storing it in the database
 func (u *User) BeforeCreate(tx *pop.Connection) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
@@ -76,24 +78,24 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a user
-func (user User) JSONAPILinks() *jsonapi.Links {
+func (u User) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/users/%s", APIUrl, user.ID.String()),
+		"self": fmt.Sprintf("http://%s/users/%s", APIUrl, u.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the User struct when marshaled
-func (user User) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the User struct when marshaled
+func (u User) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "notifications" {
 		return &jsonapi.Links{
 			"notifications": fmt.Sprintf("http://%s/users/%s/notifications",
-				APIUrl, user.ID.String()),
+				APIUrl, u.ID.String()),
 		}
 	}
 	if relation == "admin" {
 		return &jsonapi.Links{
 			"admin": fmt.Sprintf("http://%s/admins/%s",
-				APIUrl, user.Admin.ID.String()),
+				APIUrl, u.Admin.ID.String()),
 		}
 	}
 	return nil

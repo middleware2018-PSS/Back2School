@@ -12,6 +12,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
+// Admin is the model for the admins of the school system
 type Admin struct {
 	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,admins"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -62,17 +63,17 @@ func (a *Admin) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a admin
-func (admin Admin) JSONAPILinks() *jsonapi.Links {
+func (a Admin) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/admins/%s", APIUrl, admin.ID.String()),
+		"self": fmt.Sprintf("http://%s/admins/%s", APIUrl, a.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Admin struct when marshaled
-func (admin Admin) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Admin struct when marshaled
+func (a Admin) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "user" {
 		return &jsonapi.Links{
-			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, admin.UserID.String()),
+			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, a.UserID.String()),
 		}
 	}
 	return nil

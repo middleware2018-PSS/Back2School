@@ -307,6 +307,7 @@ func (v PaymentsResource) Destroy(c buffalo.Context) error {
 		customJSONRenderer("")))
 }
 
+// FakePay simulates a fake payment
 func FakePay(c buffalo.Context) error {
 	type PaymentConfirm struct {
 		ID        uuid.UUID `json:"-" db:"-" jsonapi:"primary,payment_confirm"`

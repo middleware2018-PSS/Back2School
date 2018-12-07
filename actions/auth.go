@@ -15,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Users authentication using email/password and generating a JWT token
+// UsersAuth is for users authentication using email/password and generates a JWT token
 func UsersAuth(c buffalo.Context) error {
 	userauth := &models.UserAuth{User: models.User{}}
 	//user := &models.User{}
