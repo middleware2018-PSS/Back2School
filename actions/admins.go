@@ -30,6 +30,14 @@ type AdminsResource struct {
 
 // List gets all Admins. This function is mapped to the path
 // GET /admins
+// @Summary List admins
+// @Description Get the list of all admins
+// @Tags Admins
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Admin
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /admins [get]
 func (v AdminsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -87,6 +95,15 @@ func (v AdminsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Admin. This function is mapped to
 // the path GET /admins/{admin_id}
+// @Summary Get an admin
+// @Description Get a single admin and its relationships
+// @Tags Admins
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Admin
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /admins/{id} [get]
 func (v AdminsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -127,6 +144,17 @@ func (v AdminsResource) Show(c buffalo.Context) error {
 
 // Create adds a Admin to the DB. This function is mapped to the
 // path POST /admins
+// @Summary Create an admin
+// @Description Create an admin from the payload
+// @Tags Admins
+// @Accept  json
+// @Produce  json
+// @Param Admin body models.Admin true "Admin payload"
+// @Success 200 {object} models.Admin
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /admins [post]
 func (v AdminsResource) Create(c buffalo.Context) error {
 	admin := &models.Admin{}
 
@@ -199,6 +227,17 @@ func (v AdminsResource) Create(c buffalo.Context) error {
 
 // Update changes a Admin in the DB. This function is mapped to
 // the path PUT /admins/{admin_id}
+// @Summary Update an admin
+// @Description Update an admin from the payload
+// @Tags Admins
+// @Accept  json
+// @Produce  json
+// @Param Admin body models.Admin true "Admin payload"
+// @Success 200 {object} models.Admin
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /admins [put]
 func (v AdminsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -251,6 +290,16 @@ func (v AdminsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Admin from the DB. This function is mapped
 // to the path DELETE /admins/{admin_id}
+// @Summary Delete an admin
+// @Description Delete an admin
+// @Tags Admins
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Admin ID" Format(uuid)
+// @Success 204 {object} models.Admin
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /admins/{id} [delete]
 func (v AdminsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

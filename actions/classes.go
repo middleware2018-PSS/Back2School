@@ -30,6 +30,14 @@ type ClassesResource struct {
 
 // List gets all Classes. This function is mapped to the path
 // GET /classes
+// @Summary List classes
+// @Description Get the list of all classes
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Class
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /classes [get]
 func (v ClassesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v ClassesResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Class. This function is mapped to
 // the path GET /classes/{class_id}
+// @Summary Get a class
+// @Description Get a single class and its relationships
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Class
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /classes/{id} [get]
 func (v ClassesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -103,6 +120,17 @@ func (v ClassesResource) New(c buffalo.Context) error {
 
 // Create adds a Class to the DB. This function is mapped to the
 // path POST /classes
+// @Summary Create a class
+// @Description Create a class from the payload
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Param Class body models.Class true "Class payload"
+// @Success 200 {object} models.Class
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /classes [post]
 func (v ClassesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Class
 	class := &models.Class{}
@@ -174,6 +202,17 @@ func (v ClassesResource) Edit(c buffalo.Context) error {
 
 // Update changes a Class in the DB. This function is mapped to
 // the path PUT /classes/{class_id}
+// @Summary Update a class
+// @Description Update a class from the payload
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Param Class body models.Class true "Class payload"
+// @Success 200 {object} models.Class
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /classes [put]
 func (v ClassesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -229,6 +268,16 @@ func (v ClassesResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Class from the DB. This function is mapped
 // to the path DELETE /classes/{class_id}
+// @Summary Delete a class
+// @Description Delete a class
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Class ID" Format(uuid)
+// @Success 204 {object} models.Class
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /classes/{id} [delete]
 func (v ClassesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -251,7 +300,7 @@ func (v ClassesResource) Destroy(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Redirect to the parents index page
+	// Redirect to the classes index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
 }

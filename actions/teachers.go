@@ -30,6 +30,14 @@ type TeachersResource struct {
 
 // List gets all Teachers. This function is mapped to the path
 // GET /teachers
+// @Summary List teachers
+// @Description Get the list of all teachers
+// @Tags Teachers
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Teacher
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /teachers [get]
 func (v TeachersResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v TeachersResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Teacher. This function is mapped to
 // the path GET /teachers/{teacher_id}
+// @Summary Get a teacher
+// @Description Get a single teacher and its relationships
+// @Tags Teachers
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Teacher
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /teachers/{id} [get]
 func (v TeachersResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -107,6 +124,17 @@ func (v TeachersResource) Show(c buffalo.Context) error {
 
 // Create adds a Teacher to the DB. This function is mapped to the
 // path POST /teachers
+// @Summary Create a teacher
+// @Description Create a teacher from the payload
+// @Tags Teachers
+// @Accept  json
+// @Produce  json
+// @Param Teacher body models.Teacher true "Teacher payload"
+// @Success 200 {object} models.Teacher
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /teachers [post]
 func (v TeachersResource) Create(c buffalo.Context) error {
 	teacher := &models.Teacher{}
 
@@ -179,6 +207,17 @@ func (v TeachersResource) Create(c buffalo.Context) error {
 
 // Update changes a Teacher in the DB. This function is mapped to
 // the path PUT /teachers/{teacher_id}
+// @Summary Update a teacher
+// @Description Update a teacher from the payload
+// @Tags Teachers
+// @Accept  json
+// @Produce  json
+// @Param Teacher body models.Teacher true "Teacher payload"
+// @Success 200 {object} models.Teacher
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /teachers [put]
 func (v TeachersResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -231,6 +270,16 @@ func (v TeachersResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Teacher from the DB. This function is mapped
 // to the path DELETE /teachers/{teacher_id}
+// @Summary Delete a teacher
+// @Description Delete a teacher
+// @Tags Teachers
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Teacher ID" Format(uuid)
+// @Success 204 {object} models.Teacher
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /teachers/{id} [delete]
 func (v TeachersResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

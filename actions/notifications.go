@@ -30,6 +30,14 @@ type NotificationsResource struct {
 
 // List gets all Notifications. This function is mapped to the path
 // GET /notifications
+// @Summary List notifications
+// @Description Get the list of all notifications
+// @Tags Notifications
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Notification
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /notifications [get]
 func (v NotificationsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v NotificationsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Notification. This function is mapped to
 // the path GET /notifications/{notification_id}
+// @Summary Get a notification
+// @Description Get a single notification and its relationships
+// @Tags Notifications
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Notification
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /notifications/{id} [get]
 func (v NotificationsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -108,6 +125,17 @@ func (v NotificationsResource) New(c buffalo.Context) error {
 
 // Create adds a Notification to the DB. This function is mapped to the
 // path POST /notifications
+// @Summary Create a notification
+// @Description Create a notification from the payload
+// @Tags Notifications
+// @Accept  json
+// @Produce  json
+// @Param Notification body models.Notification true "Notification payload"
+// @Success 200 {object} models.Notification
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /notifications [post]
 func (v NotificationsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Notification
 	notification := &models.Notification{}
@@ -184,6 +212,17 @@ func (v NotificationsResource) Edit(c buffalo.Context) error {
 
 // Update changes a Notification in the DB. This function is mapped to
 // the path PUT /notifications/{notification_id}
+// @Summary Update a notification
+// @Description Update a notification from the payload
+// @Tags Notifications
+// @Accept  json
+// @Produce  json
+// @Param Notification body models.Notification true "Notification payload"
+// @Success 200 {object} models.Notification
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /notifications [put]
 func (v NotificationsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -244,6 +283,16 @@ func (v NotificationsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Notification from the DB. This function is mapped
 // to the path DELETE /notifications/{notification_id}
+// @Summary Delete a notification
+// @Description Delete a notification
+// @Tags Notifications
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Notification ID" Format(uuid)
+// @Success 204 {object} models.Notification
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /notifications/{id} [delete]
 func (v NotificationsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -266,7 +315,7 @@ func (v NotificationsResource) Destroy(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Redirect to the parents index page
+	// Redirect to the notifications index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
 }

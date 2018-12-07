@@ -30,6 +30,14 @@ type GradesResource struct {
 
 // List gets all Grades. This function is mapped to the path
 // GET /grades
+// @Summary List grades
+// @Description Get the list of all grades
+// @Tags Grades
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Grade
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /grades [get]
 func (v GradesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v GradesResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Grade. This function is mapped to
 // the path GET /grades/{grade_id}
+// @Summary Get a grade
+// @Description Get a single grade and its relationships
+// @Tags Grades
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Grade
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /grades/{id} [get]
 func (v GradesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -103,6 +120,17 @@ func (v GradesResource) New(c buffalo.Context) error {
 
 // Create adds a Grade to the DB. This function is mapped to the
 // path POST /grades
+// @Summary Create a grade
+// @Description Create a grade from the payload
+// @Tags Grades
+// @Accept  json
+// @Produce  json
+// @Param Grade body models.Grade true "Grade payload"
+// @Success 200 {object} models.Grade
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /grades [post]
 func (v GradesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Grade
 	grade := &models.Grade{}
@@ -174,6 +202,17 @@ func (v GradesResource) Edit(c buffalo.Context) error {
 
 // Update changes a Grade in the DB. This function is mapped to
 // the path PUT /grades/{grade_id}
+// @Summary Update a grade
+// @Description Update a grade from the payload
+// @Tags Grades
+// @Accept  json
+// @Produce  json
+// @Param Grade body models.Grade true "Grade payload"
+// @Success 200 {object} models.Grade
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /grades [put]
 func (v GradesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -229,6 +268,16 @@ func (v GradesResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Grade from the DB. This function is mapped
 // to the path DELETE /grades/{grade_id}
+// @Summary Delete a grade
+// @Description Delete a grade
+// @Tags Grades
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Grade ID" Format(uuid)
+// @Success 204 {object} models.Grade
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /grades/{id} [delete]
 func (v GradesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -251,7 +300,7 @@ func (v GradesResource) Destroy(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Redirect to the parents index page
+	// Redirect to the grades index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
 }

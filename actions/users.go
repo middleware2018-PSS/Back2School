@@ -31,13 +31,11 @@ type UsersResource struct {
 // List gets all Users. This function is mapped to the path
 // GET /users
 // @Summary List users
-// @Description get the list of all users
-// @Tags users
+// @Description Get the list of all users
+// @Tags Users
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.User
-// @Failure 400 {object} jsonapi.ErrorObject
-// @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /users [get]
 func (v UsersResource) List(c buffalo.Context) error {
@@ -78,6 +76,15 @@ func (v UsersResource) List(c buffalo.Context) error {
 
 // Show gets the data for one User. This function is mapped to
 // the path GET /users/{user_id}
+// @Summary Get a user
+// @Description Get a single user and its relationships
+// @Tags Users
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.User
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /users/{id} [get]
 func (v UsersResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -112,6 +119,17 @@ func (v UsersResource) Show(c buffalo.Context) error {
 
 // Create adds a User to the DB. This function is mapped to the
 // path POST /users
+// @Summary Create a user
+// @Description Create a user from the payload
+// @Tags Users
+// @Accept  json
+// @Produce  json
+// @Param User body models.User true "User payload"
+// @Success 200 {object} models.User
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /users [post]
 func (v UsersResource) Create(c buffalo.Context) error {
 	// Allocate an empty User
 	user := &models.User{}
@@ -185,6 +203,17 @@ func (v UsersResource) Edit(c buffalo.Context) error {
 
 // Update changes a User in the DB. This function is mapped to
 // the path PUT /users/{user_id}
+// @Summary Update a user
+// @Description Update a user from the payload
+// @Tags Users
+// @Accept  json
+// @Produce  json
+// @Param User body models.User true "User payload"
+// @Success 200 {object} models.User
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /users [put]
 func (v UsersResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -242,6 +271,16 @@ func (v UsersResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a User from the DB. This function is mapped
 // to the path DELETE /users/{user_id}
+// @Summary Delete a user
+// @Description Delete a user
+// @Tags Users
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "User ID" Format(uuid)
+// @Success 204 {object} models.User
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /users/{id} [delete]
 func (v UsersResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

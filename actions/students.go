@@ -30,6 +30,14 @@ type StudentsResource struct {
 
 // List gets all Students. This function is mapped to the path
 // GET /students
+// @Summary List students
+// @Description Get the list of all students
+// @Tags Students
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Student
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /students [get]
 func (v StudentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v StudentsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Student. This function is mapped to
 // the path GET /students/{student_id}
+// @Summary Get a student
+// @Description Get a single student and its relationships
+// @Tags Students
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Student
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /students/{id} [get]
 func (v StudentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -103,6 +120,17 @@ func (v StudentsResource) New(c buffalo.Context) error {
 
 // Create adds a Student to the DB. This function is mapped to the
 // path POST /students
+// @Summary Create a student
+// @Description Create a student from the payload
+// @Tags Students
+// @Accept  json
+// @Produce  json
+// @Param Student body models.Student true "Student payload"
+// @Success 200 {object} models.Student
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /students [post]
 func (v StudentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Student
 	student := &models.Student{}
@@ -233,6 +261,17 @@ func (v StudentsResource) Edit(c buffalo.Context) error {
 
 // Update changes a Student in the DB. This function is mapped to
 // the path PUT /students/{student_id}
+// @Summary Update a student
+// @Description Update a student from the payload
+// @Tags Students
+// @Accept  json
+// @Produce  json
+// @Param Student body models.Student true "Student payload"
+// @Success 200 {object} models.Student
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /students [put]
 func (v StudentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -288,6 +327,16 @@ func (v StudentsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Student from the DB. This function is mapped
 // to the path DELETE /students/{student_id}
+// @Summary Delete a student
+// @Description Delete a student
+// @Tags Students
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Student ID" Format(uuid)
+// @Success 204 {object} models.Student
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /students/{id} [delete]
 func (v StudentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -310,7 +359,7 @@ func (v StudentsResource) Destroy(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Redirect to the parents index page
+	// Redirect to the students index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
 }

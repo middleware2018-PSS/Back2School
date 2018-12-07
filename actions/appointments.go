@@ -30,6 +30,14 @@ type AppointmentsResource struct {
 
 // List gets all Appointments. This function is mapped to the path
 // GET /appointments
+// @Summary List appointments
+// @Description Get the list of all appointments
+// @Tags Appointments
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Appointment
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /appointments [get]
 func (v AppointmentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -67,6 +75,15 @@ func (v AppointmentsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Appointment. This function is mapped to
 // the path GET /appointments/{appointment_id}
+// @Summary Get an appointment
+// @Description Get a single appointment and its relationships
+// @Tags Appointments
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Appointment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /appointments/{id} [get]
 func (v AppointmentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -103,6 +120,17 @@ func (v AppointmentsResource) New(c buffalo.Context) error {
 
 // Create adds a Appointment to the DB. This function is mapped to the
 // path POST /appointments
+// @Summary Create an appointment
+// @Description Create an appointment from the payload
+// @Tags Appointments
+// @Accept  json
+// @Produce  json
+// @Param Appointment body models.Appointment true "Appointment payload"
+// @Success 200 {object} models.Appointment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /appointments [post]
 func (v AppointmentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Appointment
 	appointment := &models.Appointment{}
@@ -174,6 +202,17 @@ func (v AppointmentsResource) Edit(c buffalo.Context) error {
 
 // Update changes a Appointment in the DB. This function is mapped to
 // the path PUT /appointments/{appointment_id}
+// @Summary Update an appointment
+// @Description Update an appointment from the payload
+// @Tags Appointments
+// @Accept  json
+// @Produce  json
+// @Param Appointment body models.Appointment true "Appointment payload"
+// @Success 200 {object} models.Appointment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /appointments [put]
 func (v AppointmentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -229,6 +268,16 @@ func (v AppointmentsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Appointment from the DB. This function is mapped
 // to the path DELETE /appointments/{appointment_id}
+// @Summary Delete an appointment
+// @Description Delete an appointment
+// @Tags Appointments
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Appointment ID" Format(uuid)
+// @Success 204 {object} models.Appointment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /appointments/{id} [delete]
 func (v AppointmentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

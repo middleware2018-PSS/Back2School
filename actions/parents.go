@@ -19,6 +19,14 @@ type ParentsResource struct {
 
 // List gets all Parents. This function is mapped to the path
 // GET /parents
+// @Summary List parents
+// @Description Get the list of all parents
+// @Tags Parents
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Parent
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /parents [get]
 func (v ParentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -56,6 +64,15 @@ func (v ParentsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Parent. This function is mapped to
 // the path GET /parents/{parent_id}
+// @Summary Get a parent
+// @Description Get a single parent and its relationships
+// @Tags Parents
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Parent
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /parents/{id} [get]
 func (v ParentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -96,6 +113,17 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 
 // Create adds a Parent to the DB. This function is mapped to the
 // path POST /parents
+// @Summary Create a parent
+// @Description Create a parent from the payload
+// @Tags Parents
+// @Accept  json
+// @Produce  json
+// @Param Parent body models.Parent true "Parent payload"
+// @Success 200 {object} models.Parent
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /parents [post]
 func (v ParentsResource) Create(c buffalo.Context) error {
 	parent := &models.Parent{}
 
@@ -168,6 +196,17 @@ func (v ParentsResource) Create(c buffalo.Context) error {
 
 // Update changes a Parent in the DB. This function is mapped to
 // the path PUT /parents/{parent_id}
+// @Summary Update a parent
+// @Description Update a parent from the payload
+// @Tags Parents
+// @Accept  json
+// @Produce  json
+// @Param Parent body models.Parent true "Parent payload"
+// @Success 200 {object} models.Parent
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /parents [put]
 func (v ParentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -220,6 +259,16 @@ func (v ParentsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Parent from the DB. This function is mapped
 // to the path DELETE /parents/{parent_id}
+// @Summary Delete a parent
+// @Description Delete a parent
+// @Tags Parents
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Parent ID" Format(uuid)
+// @Success 204 {object} models.Parent
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /parents/{id} [delete]
 func (v ParentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

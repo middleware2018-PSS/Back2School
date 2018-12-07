@@ -32,6 +32,14 @@ type PaymentsResource struct {
 
 // List gets all Payments. This function is mapped to the path
 // GET /payments
+// @Summary List payments
+// @Description Get the list of all payments
+// @Tags Payments
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Payment
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /payments [get]
 func (v PaymentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -69,6 +77,15 @@ func (v PaymentsResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Payment. This function is mapped to
 // the path GET /payments/{payment_id}
+// @Summary Get a payment
+// @Description Get a single payment and its relationships
+// @Tags Payments
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Payment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /payments/{id} [get]
 func (v PaymentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -105,6 +122,17 @@ func (v PaymentsResource) New(c buffalo.Context) error {
 
 // Create adds a Payment to the DB. This function is mapped to the
 // path POST /payments
+// @Summary Create a payment
+// @Description Create a payment from the payload
+// @Tags Payments
+// @Accept  json
+// @Produce  json
+// @Param Payment body models.Payment true "Payment payload"
+// @Success 200 {object} models.Payment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /payments [post]
 func (v PaymentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Payment
 	payment := &models.Payment{}
@@ -176,6 +204,17 @@ func (v PaymentsResource) Edit(c buffalo.Context) error {
 
 // Update changes a Payment in the DB. This function is mapped to
 // the path PUT /payments/{payment_id}
+// @Summary Update a payment
+// @Description Update a payment from the payload
+// @Tags Payments
+// @Accept  json
+// @Produce  json
+// @Param Payment body models.Payment true "Payment payload"
+// @Success 200 {object} models.Payment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /payments [put]
 func (v PaymentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -231,6 +270,16 @@ func (v PaymentsResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Payment from the DB. This function is mapped
 // to the path DELETE /payments/{payment_id}
+// @Summary Delete a payment
+// @Description Delete a payment
+// @Tags Payments
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Payment ID" Format(uuid)
+// @Success 204 {object} models.Payment
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /payments/{id} [delete]
 func (v PaymentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -253,7 +302,7 @@ func (v PaymentsResource) Destroy(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Redirect to the parents index page
+	// Redirect to the payments index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
 }
