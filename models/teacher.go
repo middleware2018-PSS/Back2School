@@ -13,16 +13,14 @@ import (
 )
 
 type Teacher struct {
-	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,teachers"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	// Attributes
-	Email    string `json:"email" db:"email" jsonapi:"attr,email"`
-	Password string `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
-	Name     string `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname  string `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	Subject  string `json:"subject" db:"subject" jsonapi:"attr,subject"`
-	// Relationships
+	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,teachers"`
+	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
+	Email        string         `json:"email" db:"email" jsonapi:"attr,email"`
+	Password     string         `json:"passowrd" db:"-" jsonapi:"attr,password,omitempty"`
+	Name         string         `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname      string         `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	Subject      string         `json:"subject" db:"subject" jsonapi:"attr,subject"`
 	UserID       uuid.UUID      `db:"user_id"`
 	User         *User          `belongs_to:"user" jsonapi:"relation,user,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`

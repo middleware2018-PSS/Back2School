@@ -14,14 +14,12 @@ import (
 )
 
 type Student struct {
-	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,students"`
-	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
-	// Attributes
-	Name        string    `json:"name" db:"name" jsonapi:"attr,name"`
-	Surname     string    `json:"surname" db:"surname" jsonapi:"attr,surname"`
-	DateOfBirth time.Time `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
-	// Relationships
+	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,students"`
+	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
+	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at" jsonapi:"attr,created_at,iso8601"`
+	Name         string         `json:"name" db:"name" jsonapi:"attr,name"`
+	Surname      string         `json:"surname" db:"surname" jsonapi:"attr,surname"`
+	DateOfBirth  time.Time      `json:"date_of_birth" db:"date_of_birth" jsonapi:"attr,date_of_birth,iso8601"`
 	Parents      []*Parent      `many_to_many:"parents_students" jsonapi:"relation,parents,omitempty"`
 	Appointments []*Appointment `has_many:"appointments" jsonapi:"relation,appointments,omitempty"`
 	ClassID      nulls.UUID     `db:"class_id"`

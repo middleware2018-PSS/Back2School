@@ -15,11 +15,9 @@ type Notification struct {
 	ID        uuid.UUID `db:"id" jsonapi:"primary,notifications"`
 	CreatedAt time.Time `db:"created_at" jsonapi:"attr,created_at,iso8601"`
 	UpdatedAt time.Time `db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	// Attributes
-	Time    time.Time `db:"time" jsonapi:"attr,time,iso8601"`
-	Message string    `db:"message" jsonapi:"attr,message"`
-	// Relationships
-	Users []*User `many_to_many:"users_notifications" jsonapi:"relation,users,omitempty"`
+	Time      time.Time `db:"time" jsonapi:"attr,time,iso8601"`
+	Message   string    `db:"message" jsonapi:"attr,message"`
+	Users     []*User   `many_to_many:"users_notifications" jsonapi:"relation,users,omitempty"`
 }
 
 // String is not required by pop and may be deleted

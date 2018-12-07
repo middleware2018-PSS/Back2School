@@ -15,11 +15,9 @@ type Payment struct {
 	ID        uuid.UUID `json:"id" db:"id" jsonapi:"primary,payments"`
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
-	// Attributes
 	DueDate   time.Time `json:"due_date" db:"due_date" jsonapi:"attr,due_date,iso8601"`
 	IssueDate time.Time `json:"issue_date" db:"issue_date" jsonapi:"attr,issue_date,iso8601"`
 	Amount    float64   `json:"amount" db:"amount" jsonapi:"attr,amount"`
-	// Relationships
 	StudentID uuid.UUID `db:"student_id"`
 	Student   *Student  `belongs_to:"student" jsonapi:"relation,student,omitempty"`
 	Parents   []*Parent `many_to_many:"parents_payments" jsonapi:"relation,parents,omitempty"`
