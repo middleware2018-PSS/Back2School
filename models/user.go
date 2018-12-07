@@ -15,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserAuth is a wrapper around User used for authenitcation
+// UserAuth is a wrapper around User used for authentication
 type UserAuth struct {
 	User
 	Email            string `json:"email" db:"-"`

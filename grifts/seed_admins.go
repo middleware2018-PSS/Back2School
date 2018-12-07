@@ -11,14 +11,14 @@ import (
 )
 
 func createAdmins(tx *pop.Connection) error {
-	u_id := createUserFromAdmin(tx, *angela_kennedy)
-	angela_kennedy.UserID = u_id
-	if _, err := tx.ValidateAndCreate(angela_kennedy); err != nil {
+	uID := createUserFromAdmin(tx, *angelaKennedy)
+	angelaKennedy.UserID = uID
+	if _, err := tx.ValidateAndCreate(angelaKennedy); err != nil {
 		return errors.WithStack(err)
 	}
-	u_id = createUserFromAdmin(tx, *chris_white)
-	chris_white.UserID = u_id
-	if _, err := tx.ValidateAndCreate(chris_white); err != nil {
+	uID = createUserFromAdmin(tx, *chrisWhite)
+	chrisWhite.UserID = uID
+	if _, err := tx.ValidateAndCreate(chrisWhite); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
@@ -38,7 +38,7 @@ func createUserFromAdmin(tx *pop.Connection, admin models.Admin) uuid.UUID {
 	return user.ID
 }
 
-var angela_kennedy *models.Admin = &models.Admin{
+var angelaKennedy *models.Admin = &models.Admin{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
@@ -48,7 +48,7 @@ var angela_kennedy *models.Admin = &models.Admin{
 	Surname:   "Kennedy",
 }
 
-var chris_white *models.Admin = &models.Admin{
+var chrisWhite *models.Admin = &models.Admin{
 	ID:        generateID(),
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),

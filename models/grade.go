@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 )
 
+// Grade is the model for a student's grade
 type Grade struct {
 	ID        uuid.UUID `db:"id" jsonapi:"primary,grades"`
 	CreatedAt time.Time `db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -55,17 +56,17 @@ func (g *Grade) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
-func (grade Grade) JSONAPILinks() *jsonapi.Links {
+func (g Grade) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/grades/%s", APIUrl, grade.ID.String()),
+		"self": fmt.Sprintf("http://%s/grades/%s", APIUrl, g.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Grade struct when marshaled
-func (grade Grade) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Grade struct when marshaled
+func (g Grade) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "student" {
 		return &jsonapi.Links{
-			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, grade.StudentID.String()),
+			"student": fmt.Sprintf("http://%s/students/%s", APIUrl, g.StudentID.String()),
 		}
 	}
 	return nil

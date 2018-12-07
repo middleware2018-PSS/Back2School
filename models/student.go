@@ -13,6 +13,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
+// Student is the model for school students
 type Student struct {
 	ID           uuid.UUID      `json:"id" db:"id" jsonapi:"primary,students"`
 	CreatedAt    time.Time      `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
@@ -75,17 +76,17 @@ func (s *Student) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // JSONAPILinks implements the Linkable interface for a parent
-func (student Student) JSONAPILinks() *jsonapi.Links {
+func (s Student) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/students/%s", APIUrl, student.ID.String()),
+		"self": fmt.Sprintf("http://%s/students/%s", APIUrl, s.ID.String()),
 	}
 }
 
-// Invoked for each relationship defined on the Student struct when marshaled
-func (student Student) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
+// JSONAPIRelationshipLinks is invoked for each relationship defined on the Student struct when marshaled
+func (s Student) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "parents" {
 		return &jsonapi.Links{
-			"parents": fmt.Sprintf("http://%s/students/%s/parents", APIUrl, student.ID.String()),
+			"parents": fmt.Sprintf("http://%s/students/%s/parents", APIUrl, s.ID.String()),
 		}
 	}
 	return nil

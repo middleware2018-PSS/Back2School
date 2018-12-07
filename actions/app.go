@@ -26,6 +26,7 @@ import (
 	"github.com/middleware2018-PSS/back2_school/models"
 	"github.com/rs/cors"
 
+	// Use a blank import as required by swaggo
 	_ "github.com/middleware2018-PSS/back2_school/docs"
 	buffaloSwagger "github.com/swaggo/buffalo-swagger"
 	"github.com/swaggo/buffalo-swagger/swaggerFiles"
@@ -39,6 +40,7 @@ var app *buffalo.App
 // Create a new instance of the logger
 var log = logrus.New()
 
+// App is the main of the API and here we define the General API info for swagger
 // @title Back2School API
 // @version 1.0
 // @description This is an api to manage online services for a school.
@@ -99,7 +101,7 @@ func App() *buffalo.App {
 		api.Use(authorizer)
 		//api.Middleware.Skip(authorizer, UsersAuth)
 
-		api.GET("/", ListRoutes)
+		api.GET("/", listRoutes)
 		api.POST("/login", UsersAuth)
 		api.Resource("/users", UsersResource{})
 		api.GET("/users/{id}/{res:(?:notifications)}", func(c buffalo.Context) error {
@@ -168,7 +170,8 @@ func forceSSL() buffalo.MiddlewareFunc {
 	})
 }
 
-func ListRoutes(c buffalo.Context) error {
+// List
+func listRoutes(c buffalo.Context) error {
 	var routesList []string
 	for _, r := range app.Routes() {
 		entry := fmt.Sprintf("%s %s", r.Method, r.Path)

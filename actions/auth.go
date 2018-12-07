@@ -62,7 +62,7 @@ func UsersAuth(c buffalo.Context) error {
 	// Generate token
 	secretKey := envy.Get("JWT_SECRET", "secret")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(secretKey))
+	tokenString, _ := token.SignedString([]byte(secretKey))
 
 	return c.Render(200, r.Auto(c, tokenString))
 }
