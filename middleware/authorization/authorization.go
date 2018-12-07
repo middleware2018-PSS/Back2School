@@ -34,7 +34,7 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 			var role, roleID string
 			if claims, ok := c.Value("claims").(jwt.MapClaims); ok {
 				role = claims["role"].(string)
-				roleID = claims["roleID"].(string)
+				roleID = claims["role_id"].(string)
 			} else {
 				role = "anonymous"
 			}
@@ -49,13 +49,10 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 				return c.Error(http.StatusInternalServerError, err)
 			}
 			if res {
-				log.Println("It's ok to go on with buffalo")
 				err = next(c)
 			} else {
 				return c.Error(http.StatusForbidden, errors.New("You are not authorized to do this"))
 			}
-
-			log.Println("Ready to return buffalo err")
 			return err
 		}
 

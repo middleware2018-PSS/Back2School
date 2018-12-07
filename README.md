@@ -1,4 +1,4 @@
-Back2School REST API
+# Back2School REST API
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/middleware2018-PSS/Back2School)](https://goreportcard.com/report/github.com/middleware2018-PSS/Back2School)
 
