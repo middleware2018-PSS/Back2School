@@ -32,7 +32,7 @@ func (a Admin) String() string {
 }
 
 // Admins is not required by pop and may be deleted
-type Admins []Admin
+type Admins []*Admin
 
 // String is not required by pop and may be deleted
 func (a Admins) String() string {

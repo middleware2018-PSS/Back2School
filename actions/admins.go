@@ -58,31 +58,11 @@ func (v AdminsResource) List(c buffalo.Context) error {
 			http.StatusInternalServerError, err)
 	}
 
-	// Attatch users to admins
-	for i, a := range *admins {
-		user := &models.User{}
-		if err := tx.Select("id", "created_at", "updated_at", "email", "role").
-			Find(user, a.UserID); err != nil {
-			return apiError(c, "Internal Error",
-				"Internal Server Error", http.StatusInternalServerError, err)
-		}
-		a.User = user
-		// Save it back to the admins list
-		(*admins)[i] = a
-	}
-
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	// Convert the slice of admins to a slice of pointers to admins
-	// because Pop wants the former, jsonapi, the latter
-	adminsp := []*models.Admin{}
-	for i := 0; i < len(*admins); i++ {
-		adminsp = append(adminsp, &((*admins)[i]))
-	}
-
 	res := new(bytes.Buffer)
-	err := jsonapi.MarshalPayload(res, adminsp)
+	err := jsonapi.MarshalPayload(res, *admins)
 	if err != nil {
 		log.Debug("Problem marshalling admins in actions.AdminsResource.List")
 		return apiError(c, "Internal Error preparing the response payload",
