@@ -177,67 +177,6 @@ func (v StudentsResource) Create(c buffalo.Context) error {
 	}
 	return c.Render(200, r.Func("application/json",
 		customJSONRenderer(res.String())))
-
-	//// To create a student you must use the Parent route because
-	//// they have to be related
-	//if c.Param("parent_id") == "" {
-	//return apiError(c, "The student resource cannot be created without a parent associated",
-	//"Unprocessable Entity", http.StatusUnprocessableEntity,
-	//errors.New("The resource cannot be created"))
-	//} else {
-	//// Unmarshall the JSON payload into a Student struct
-	//if err := jsonapi.UnmarshalPayload(c.Request().Body, student); err != nil {
-	//return apiError(c, "Error processing the request payload",
-	//"Internal Server Error", http.StatusInternalServerError, err)
-	//}
-
-	//// Check if the parent exist
-	//parent := &models.Parent{}
-	//if err := tx.Find(parent, c.Param("parent_id")); err != nil {
-	//return apiError(c, "Cannot find the parent relationship",
-	//"Unprocessable Entity", http.StatusUnprocessableEntity, err)
-	//}
-
-	//// Create and save the user
-	//verrs, err := tx.ValidateAndCreate(student)
-	//if err != nil {
-	//return apiError(c, "Validation Error", "Unprocessable Entity",
-	//http.StatusUnprocessableEntity, err)
-	//}
-
-	//// Check for validation errors
-	//if verrs.HasAny() {
-	//return apiError(c, "Validation Error", "Unprocessable Entity",
-	//http.StatusUnprocessableEntity, err)
-	//}
-
-	//// Create record in parents_users table
-	//id, _ := uuid.NewV4()
-	//if err := tx.RawQuery("INSERT INTO parents_students (id, parent_id, student_id) VALUES (?, ?, ?)",
-	//id, parent.ID, student.ID).Exec(); err != nil {
-	//// If you can't create the association, remove also
-	//// the student from the database
-	//if err := tx.Destroy(student); err != nil {
-	//return apiError(c, "Internal error", "Internal Server Error",
-	//http.StatusInternalServerError, err)
-	//}
-	//return apiError(c, "Unable to create the association", "Unprocessable Entity",
-	//http.StatusUnprocessableEntity, err)
-	//}
-
-	//// Return the user
-	//log.Debug("Student created in actions.StudentsResource.Create:\n%v\n", student)
-
-	//// If there are no errors return the Student resource
-	//res := new(bytes.Buffer)
-	//err = jsonapi.MarshalPayload(res, student)
-	//if err != nil {
-	//return apiError(c, "Error processing the response payload",
-	//"Internal Server Error", http.StatusInternalServerError, err)
-	//}
-	//return c.Render(200, r.Func("application/json",
-	//customJSONRenderer(res.String())))
-	//}
 }
 
 // Edit renders a edit form for a Student. This function is
