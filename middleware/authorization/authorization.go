@@ -132,11 +132,9 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 			e.AddFunction("isOwner", isOwnerFunc)
 
 			// Casbin rule enforcing
-			log.Println("r.obj:", c.Value("current_path"))
 			res, err := e.EnforceSafe(roleID, c.Value("current_path"), c.Value("method"), role, c)
 			if err != nil {
 				log.Println("Error loading Casbin enforcing")
-				log.Println(err)
 				return c.Error(http.StatusInternalServerError, err)
 			}
 			if res {
@@ -155,7 +153,7 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 }
 
 func apiError(c buffalo.Context, title, status string, httpcode int, err error) error {
-	log.Debug("%+v", errors.WithStack(err))
+	//log.Debug("%+v", errors.WithStack(err))
 
 	var ENV = envy.Get("GO_ENV", "development")
 	var r *render.Engine

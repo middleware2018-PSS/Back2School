@@ -3,7 +3,7 @@ development:
   database: back2_school_development
   user: postgres
   password: postgres
-  host: back2school-db
+  host: db
   pool: 5
 
 test:
@@ -11,7 +11,7 @@ test:
   database: back2_school_test
   user: postgres
   password: postgres
-  host: back2school-db
+  host: db
   pool: 5
 
 production:
@@ -19,5 +19,5 @@ production:
   database: back2_school_production
   user: postgres
   password: postgres
-  host: back2school-db
+  host: db
   pool: 5

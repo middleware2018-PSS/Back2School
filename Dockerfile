@@ -1,5 +1,4 @@
-# This is a multi-stage Dockerfile and requires >= Docker 17.05
-# https://docs.docker.com/engine/userguide/eng-image/multistage-build/
+### Build Image
 FROM gobuffalo/buffalo:v0.13.10 as builder
 
 ENV GO111MODULE=on
@@ -11,9 +10,20 @@ ADD . .
 #RUN dep ensure
 RUN buffalo build --static -o /bin/app
 
+
+### Runtime Image
 FROM alpine
 RUN apk add --no-cache bash
 RUN apk add --no-cache ca-certificates
+
+# Install Dockerize
+RUN apk add --no-cache openssl
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
 
 WORKDIR /bin/
 
@@ -40,4 +50,4 @@ EXPOSE 3000
 
 # Uncomment to run the migrations before running the binary:
 # CMD /bin/app migrate; /bin/app
-CMD exec /bin/app
+CMD dockerize -wait tcp://db:5432 && /bin/app task db:create && /bin/app migrate && /bin/app task db:seed && /bin/app

@@ -12,6 +12,12 @@ import (
 
 var _ = grift.Namespace("db", func() {
 
+	grift.Desc("create", "Creates a database")
+	grift.Add("create", func(c *grift.Context) error {
+		err := pop.CreateDB(models.DB)
+		return err
+	})
+
 	grift.Desc("seed", "Seeds a database")
 	grift.Add("seed", func(c *grift.Context) error {
 		return models.DB.Transaction(func(tx *pop.Connection) error {
