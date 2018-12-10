@@ -93,7 +93,9 @@ func App() *buffalo.App {
 		api.Middleware.Skip(TokenAuth, UsersAuth)
 
 		// Setup casbin auth rules
-		authEnforcer, err := casbin.NewEnforcerSafe("./auth_model.conf", "./policy.csv")
+		model := envy.Get("AUTH_MODEL", "./auth_model.conf")
+		policy := envy.Get("POLICY", "./policy.csv")
+		authEnforcer, err := casbin.NewEnforcerSafe(model, policy)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -150,8 +152,8 @@ func App() *buffalo.App {
 
 		api.POST("/payments/{payment_id}/pay", FakePay)
 		api.GET("{all:.*}", func(c buffalo.Context) error {
-			return c.Render(200, r.Func("application/json",
-				customJSONRenderer("404 Not found")))
+			return apiError(c, "Route does not exist", "Not Found",
+				http.StatusNotFound, errors.New("Route does not exist"))
 		})
 	}
 

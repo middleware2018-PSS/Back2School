@@ -10,6 +10,8 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f h1:zvClvFQwU++UpIUBGC8YmDlfhUrweEy1R1Fj1gu5iIM=
 github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
+github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc h1:cAKDfWh5VpdgMhJosfJnn5/FoN2SRZ4p7fJNX58YPaU=
+github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/casbin/casbin v1.6.0 h1:uIhuV5I0ilXGUm3y+xJ8nG7VOnYDeZZQiNsFOTF2QmI=
@@ -18,6 +20,8 @@ github.com/cippaciong/jsonapi v0.0.0-20181027132418-a63f257f1657 h1:naHKeT0uaM4i
 github.com/cippaciong/jsonapi v0.0.0-20181027132418-a63f257f1657/go.mod h1:e3CVwJM62PvmsXLMFz0/VIWezrn2OaEkYVXLxp9/wUA=
 github.com/cippaciong/jsonapi v0.0.0-20181117162014-f459903d4293 h1:SbBiRQR2ak52LWKGN1nShue//1R5iQkViYMfqikT+nc=
 github.com/cippaciong/jsonapi v0.0.0-20181117162014-f459903d4293/go.mod h1:M3pG9yviYAkiUNHjarzLBbt3ShsaZTxdFJ2x845GA34=
+github.com/cippaciong/pop v4.9.5+incompatible h1:maGUy3Ths/4Ci/DXDL+Dmc3TnI58bRdj2PwI9AnRuxI=
+github.com/cippaciong/pop v4.9.5+incompatible/go.mod h1:qz0UZ0iXEzAltkaXhsOrFlxgQ0JeDhtXkCOmDQPSA+s=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=
 github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c h1:2zRrJWIt/f9c9HhNHAgrRgq0San5gRRUJTBXLkchal0=
@@ -240,6 +244,8 @@ github.com/gobuffalo/pop v4.8.7+incompatible/go.mod h1:DwBz3SD5SsHpTZiTubcsFWcVD
 github.com/gobuffalo/pop v4.8.8+incompatible/go.mod h1:DwBz3SD5SsHpTZiTubcsFWcVDpJWGsxjVjMPnkiThWg=
 github.com/gobuffalo/pop v4.9.0+incompatible h1:WAcczeQxPhsMJCS3ptR6kLai7F9rlowBrk04HWxl48I=
 github.com/gobuffalo/pop v4.9.0+incompatible/go.mod h1:DwBz3SD5SsHpTZiTubcsFWcVDpJWGsxjVjMPnkiThWg=
+github.com/gobuffalo/pop v4.9.1+incompatible h1:LGGDnjqG1mE5zh5HpEkrlxedeazyBBFwygmk/fBcHIA=
+github.com/gobuffalo/pop v4.9.1+incompatible/go.mod h1:DwBz3SD5SsHpTZiTubcsFWcVDpJWGsxjVjMPnkiThWg=
 github.com/gobuffalo/release v1.0.35/go.mod h1:VtHFAKs61vO3wboCec5xr9JPTjYyWYcvaM3lclkc4x4=
 github.com/gobuffalo/release v1.0.38/go.mod h1:VtHFAKs61vO3wboCec5xr9JPTjYyWYcvaM3lclkc4x4=
 github.com/gobuffalo/release v1.0.42/go.mod h1:RPs7EtafH4oylgetOJpGP0yCZZUiO4vqHfTHJjSdpug=
@@ -275,6 +281,8 @@ github.com/gofrs/uuid v3.1.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRx
 github.com/golang/protobuf v1.1.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/google/jsonapi v0.0.0-20181016150055-d0428f63eb51 h1:k+U8IQj6kj659R+Ahq6YsK03GdUo8qQdTsq5HBzfQwM=
+github.com/google/jsonapi v0.0.0-20181016150055-d0428f63eb51/go.mod h1:XSx4m2SziAqk9DXY9nz659easTq4q6TyrpYd9tHSm0g=
 github.com/gorilla/context v1.1.1 h1:AWwleXJkX/nhcU9bZSnZoi3h/qGYqQAGhq6zZe/aQW8=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
 github.com/gorilla/mux v1.6.2 h1:Pgr17XVTNXAk3q/r4CpKzC5xBM/qW1uVLV+IhRZpIIk=
@@ -439,6 +447,8 @@ github.com/spf13/viper v1.2.1/go.mod h1:P4AexN0a+C9tGAnUFNwDMYYZv3pjFuvmeiMyKRaN
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+github.com/swaggo/buffalo-swagger v0.0.0-20181207140812-ebdb92f4a577 h1:vmSCRca4mfn1obJRRYOteD53FHa30ViSdeLOkMGBbC0=
+github.com/swaggo/buffalo-swagger v0.0.0-20181207140812-ebdb92f4a577/go.mod h1:EBjOe97rttVg9PymYBbDu7TzzrxAjWbWn9zXf3rl5dw=
 github.com/swaggo/swag v1.3.2 h1:pR137hlBoouh2OWd//4F7xchfCXC1ry6yGFbxEjM9d4=
 github.com/swaggo/swag v1.3.2/go.mod h1:hog2WgeMOrQ/LvQ+o1YGTeT+vWVrbi0SiIslBtxKTyM=
 github.com/unrolled/secure v0.0.0-20180918153822-f340ee86eb8b h1:BcYLITOE/4y1IAcNb0XsnDMskrWaBNLj/ckrG8sufOc=
