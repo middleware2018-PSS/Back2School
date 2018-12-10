@@ -38,6 +38,7 @@ type ClassesResource struct {
 // @Success 200 {array} models.Class
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /classes [get]
+// @Security ApiKeyAuth
 func (v ClassesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -84,6 +85,7 @@ func (v ClassesResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /classes/{id} [get]
+// @Security ApiKeyAuth
 func (v ClassesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -131,6 +133,7 @@ func (v ClassesResource) New(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /classes [post]
+// @Security ApiKeyAuth
 func (v ClassesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Class
 	class := &models.Class{}
@@ -213,6 +216,7 @@ func (v ClassesResource) Edit(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /classes [put]
+// @Security ApiKeyAuth
 func (v ClassesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -278,6 +282,7 @@ func (v ClassesResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /classes/{id} [delete]
+// @Security ApiKeyAuth
 func (v ClassesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

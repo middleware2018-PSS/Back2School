@@ -38,6 +38,7 @@ type GradesResource struct {
 // @Success 200 {array} models.Grade
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /grades [get]
+// @Security ApiKeyAuth
 func (v GradesResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -84,6 +85,7 @@ func (v GradesResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /grades/{id} [get]
+// @Security ApiKeyAuth
 func (v GradesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -131,6 +133,7 @@ func (v GradesResource) New(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /grades [post]
+// @Security ApiKeyAuth
 func (v GradesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Grade
 	grade := &models.Grade{}
@@ -213,6 +216,7 @@ func (v GradesResource) Edit(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /grades [put]
+// @Security ApiKeyAuth
 func (v GradesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -278,6 +282,7 @@ func (v GradesResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /grades/{id} [delete]
+// @Security ApiKeyAuth
 func (v GradesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

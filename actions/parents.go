@@ -74,6 +74,7 @@ func (v ParentsResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /parents/{id} [get]
+// @Security ApiKeyAuth
 func (v ParentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -125,6 +126,7 @@ func (v ParentsResource) Show(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /parents [post]
+// @Security ApiKeyAuth
 func (v ParentsResource) Create(c buffalo.Context) error {
 	parent := &models.Parent{}
 
@@ -208,6 +210,7 @@ func (v ParentsResource) Create(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /parents [put]
+// @Security ApiKeyAuth
 func (v ParentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -270,6 +273,7 @@ func (v ParentsResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /parents/{id} [delete]
+// @Security ApiKeyAuth
 func (v ParentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

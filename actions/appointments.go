@@ -38,6 +38,7 @@ type AppointmentsResource struct {
 // @Success 200 {array} models.Appointment
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /appointments [get]
+// @Security ApiKeyAuth
 func (v AppointmentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -84,6 +85,7 @@ func (v AppointmentsResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /appointments/{id} [get]
+// @Security ApiKeyAuth
 func (v AppointmentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -131,6 +133,7 @@ func (v AppointmentsResource) New(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /appointments [post]
+// @Security ApiKeyAuth
 func (v AppointmentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Appointment
 	appointment := &models.Appointment{}
@@ -213,6 +216,7 @@ func (v AppointmentsResource) Edit(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /appointments [put]
+// @Security ApiKeyAuth
 func (v AppointmentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -278,6 +282,7 @@ func (v AppointmentsResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /appointments/{id} [delete]
+// @Security ApiKeyAuth
 func (v AppointmentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

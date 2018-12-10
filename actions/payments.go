@@ -40,6 +40,7 @@ type PaymentsResource struct {
 // @Success 200 {array} models.Payment
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /payments [get]
+// @Security ApiKeyAuth
 func (v PaymentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -86,6 +87,7 @@ func (v PaymentsResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /payments/{id} [get]
+// @Security ApiKeyAuth
 func (v PaymentsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -133,6 +135,7 @@ func (v PaymentsResource) New(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /payments [post]
+// @Security ApiKeyAuth
 func (v PaymentsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Payment
 	payment := &models.Payment{}
@@ -215,6 +218,7 @@ func (v PaymentsResource) Edit(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /payments [put]
+// @Security ApiKeyAuth
 func (v PaymentsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -280,6 +284,7 @@ func (v PaymentsResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /payments/{id} [delete]
+// @Security ApiKeyAuth
 func (v PaymentsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

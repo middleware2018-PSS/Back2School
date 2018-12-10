@@ -38,6 +38,7 @@ type NotificationsResource struct {
 // @Success 200 {array} models.Notification
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /notifications [get]
+// @Security ApiKeyAuth
 func (v NotificationsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -84,6 +85,7 @@ func (v NotificationsResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /notifications/{id} [get]
+// @Security ApiKeyAuth
 func (v NotificationsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -136,6 +138,7 @@ func (v NotificationsResource) New(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /notifications [post]
+// @Security ApiKeyAuth
 func (v NotificationsResource) Create(c buffalo.Context) error {
 	// Allocate an empty Notification
 	notification := &models.Notification{}
@@ -223,6 +226,7 @@ func (v NotificationsResource) Edit(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /notifications [put]
+// @Security ApiKeyAuth
 func (v NotificationsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -293,6 +297,7 @@ func (v NotificationsResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /notifications/{id} [delete]
+// @Security ApiKeyAuth
 func (v NotificationsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
