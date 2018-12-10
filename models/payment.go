@@ -78,3 +78,18 @@ func (p Payment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	}
 	return nil
 }
+
+// BelongsToParent implements the Ownable interface for payment/parent relationships
+func (p Payment) BelongsToParent(tx *pop.Connection, pID string) bool {
+	for _, parent := range p.Parents {
+		if parent.ID.String() == pID {
+			return true
+		}
+	}
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for payment/teacher relationships
+func (p Payment) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	return false
+}

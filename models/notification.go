@@ -72,3 +72,31 @@ func (n Notification) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	}
 	return nil
 }
+
+// BelongsToParent implements the Ownable interface for notification/parent relationships
+func (n Notification) BelongsToParent(tx *pop.Connection, pID string) bool {
+	p := &Parent{}
+	if err := tx.Eager("User").Find(p, pID); err != nil {
+		return false
+	}
+	for _, u := range n.Users {
+		if p.User.ID == u.ID {
+			return true
+		}
+	}
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for notification/teacher relationships
+func (n Notification) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	t := &Teacher{}
+	if err := tx.Eager("User").Find(t, tID); err != nil {
+		return false
+	}
+	for _, u := range n.Users {
+		if t.User.ID == u.ID {
+			return true
+		}
+	}
+	return false
+}

@@ -83,3 +83,18 @@ func (a Appointment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	}
 	return nil
 }
+
+// BelongsToParent implements the Ownable interface for appointment/parent relationships
+func (a Appointment) BelongsToParent(tx *pop.Connection, pID string) bool {
+	for _, p := range a.Parents {
+		if p.ID.String() == pID {
+			return true
+		}
+	}
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for appointment/teacher relationships
+func (a Appointment) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	return a.Teacher.ID.String() == tID
+}

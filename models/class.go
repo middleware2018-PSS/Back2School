@@ -58,7 +58,7 @@ func (c *Class) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // JSONAPILinks implements the Linkable interface for a class
 func (c Class) JSONAPILinks() *jsonapi.Links {
 	return &jsonapi.Links{
-		"self": fmt.Sprintf("http://%s/classs/%s", APIUrl, c.ID.String()),
+		"self": fmt.Sprintf("http://%s/classes/%s", APIUrl, c.ID.String()),
 	}
 }
 
@@ -66,15 +66,30 @@ func (c Class) JSONAPILinks() *jsonapi.Links {
 func (c Class) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	if relation == "teachers" {
 		return &jsonapi.Links{
-			"teachers": fmt.Sprintf("http://%s/classs/%s/teachers",
+			"teachers": fmt.Sprintf("http://%s/classes/%s/teachers",
 				APIUrl, c.ID.String()),
 		}
 	}
 	if relation == "students" {
 		return &jsonapi.Links{
-			"students": fmt.Sprintf("http://%s/class/%s/students",
+			"students": fmt.Sprintf("http://%s/classes/%s/students",
 				APIUrl, c.ID.String()),
 		}
 	}
 	return nil
+}
+
+// BelongsToParent implements the Ownable interface for class/parent relationships
+func (c Class) BelongsToParent(tx *pop.Connection, pID string) bool {
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for class/teacher relationships
+func (c Class) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	for _, t := range c.Teachers {
+		if t.ID.String() == tID {
+			return true
+		}
+	}
+	return false
 }

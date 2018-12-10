@@ -91,3 +91,30 @@ func (s Student) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	}
 	return nil
 }
+
+// BelongsToParent implements the Ownable interface for student/parent relationships
+func (s Student) BelongsToParent(tx *pop.Connection, pID string) bool {
+	for _, p := range s.Parents {
+		if p.ID.String() == pID {
+			return true
+		}
+	}
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for student/teacher relationships
+func (s Student) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	if !s.ClassID.Valid {
+		return false
+	}
+	c := &Class{}
+	if err := tx.Eager().Find(c, s.ClassID.UUID.String()); err != nil {
+		return false
+	}
+	for _, t := range c.Teachers {
+		if t.ID.String() == tID {
+			return true
+		}
+	}
+	return false
+}

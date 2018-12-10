@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/cippaciong/jsonapi"
@@ -70,4 +71,42 @@ func (g Grade) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 		}
 	}
 	return nil
+}
+
+// BelongsToParent implements the Ownable interface for grade/parent relationships
+func (g Grade) BelongsToParent(tx *pop.Connection, pID string) bool {
+	s := &Student{}
+	if err := tx.Eager("Parents").Find(s, g.Student.ID); err != nil {
+		log.Println("Error eager loading student parents")
+		return false
+	}
+	log.Println(g.Student)
+	for _, p := range s.Parents {
+		if p.ID.String() == pID {
+			return true
+		}
+	}
+	return false
+}
+
+// BelongsToTeacher implements the Ownable interface for grade/teacher relationships
+func (g Grade) BelongsToTeacher(tx *pop.Connection, tID string) bool {
+	// Eager load the student's class
+	s := &Student{}
+	if err := tx.Eager("Class").Find(s, g.Student.ID); err != nil {
+		log.Println("Error eager loading student class")
+		return false
+	}
+	// Eager load the teachers of the student's class
+	c := &Class{}
+	if err := tx.Eager("Teachers").Find(c, s.Class.ID); err != nil {
+		log.Println("Error eager loading class teachers")
+		return false
+	}
+	for _, t := range c.Teachers {
+		if t.ID.String() == tID {
+			return true
+		}
+	}
+	return false
 }
