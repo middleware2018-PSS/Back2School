@@ -14,19 +14,86 @@ import (
 )
 
 func isOwner(roleID, rURL, pURL, role string, c *buffalo.DefaultContext) bool {
-	switch role {
-	case "admin":
-		// This should not be necessary as we handle it already in auth_model.conf
-		return true
-	case "parent":
-		return checkParentOwnership(roleID, rURL, pURL, role, c)
-	case "teacher":
-		return checkTeacherOwnership(roleID, rURL, pURL, role, c)
+	// Get the name of the resource we are accessing
+	res := strings.Split(rURL, "/")[3]
+
+	// Direct check if parent is accessing a parent resource
+	if res == "parents" {
+		return c.Param("parent_id") == roleID || c.Param("id") == roleID
 	}
-	//if strings.Contains(pURL, ":id") &&
-	//strings.Split(rURL, "/")[4] == roleID {
-	//return true
-	//}
+
+	// Direct check if teacher is accessing a teacher resource
+	if res == "teachers" {
+		return c.Param("teacher_id") == roleID || c.Param("id") == roleID
+	}
+
+	// For all other endpoints exploit the Ownable interface
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		log.Println("Database error in Casbin")
+		return false
+	}
+
+	var id string
+	var o models.Ownable
+	switch res {
+	case "students":
+		if c.Param("student_id") != "" {
+			id = c.Param("student_id")
+		} else {
+			id = c.Param("id")
+		}
+		o = &models.Student{}
+		if err := tx.Eager().Find(o, id); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	case "payments":
+		o = &models.Payment{}
+		if err := tx.Eager().Find(o, c.Param("payment_id")); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	case "classes":
+		if c.Param("class_id") != "" {
+			id = c.Param("class_id")
+		} else {
+			id = c.Param("id")
+		}
+		o = &models.Class{}
+		if err := tx.Eager().Find(o, id); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	case "grades":
+		o = &models.Grade{}
+		if err := tx.Eager().Find(o, c.Param("grade_id")); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	case "notifications":
+		o = &models.Notification{}
+		if err := tx.Eager().Find(o, c.Param("notification_id")); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	case "appointments":
+		o = &models.Appointment{}
+		if err := tx.Eager().Find(o, c.Param("appointment_id")); err != nil {
+			log.Println("Error eager loading")
+			return false
+		}
+	default:
+		log.Println("SUCKA")
+		return false
+	}
+	if role == "parent" {
+		return o.BelongsToParent(tx, roleID)
+	}
+	if role == "teacher" {
+		return o.BelongsToTeacher(tx, roleID)
+	}
+
 	return false
 }
 
@@ -56,6 +123,7 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 			e.AddFunction("isOwner", isOwnerFunc)
 
 			// Casbin rule enforcing
+			log.Println("r.obj:", c.Value("current_path"))
 			res, err := e.EnforceSafe(roleID, c.Value("current_path"), c.Value("method"), role, c)
 			if err != nil {
 				log.Println("Error loading Casbin enforcing")
@@ -72,38 +140,4 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 
 		return fn
 	}
-}
-
-func checkTeacherOwnership(roleID, rURL, pURL, role string, c *buffalo.DefaultContext) bool {
-	log.Println("Checking teacher ownership")
-
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		log.Println("Database error in Casbin")
-		return false
-	}
-
-	teacher := &models.Teacher{}
-
-	basepath := strings.Split(rURL, "/")[3]
-	switch basepath {
-	case "classes":
-		if err := tx.Eager("Classes").Find(teacher, roleID); err != nil {
-			log.Println("Error loading teacher resource")
-			return false
-		}
-		for _, class := range teacher.Classes {
-			if class.ID.String() == c.Param("id") {
-				return true
-			}
-		}
-		return false
-	default:
-		return false
-	}
-
-}
-
-func checkParentOwnership(roleID, rURL, pURL, role string, c *buffalo.DefaultContext) bool {
-	return false
 }
