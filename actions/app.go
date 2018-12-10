@@ -110,19 +110,19 @@ func App() *buffalo.App {
 		api.Resource("/admins", AdminsResource{})
 
 		api.Resource("/parents", ParentsResource{})
-		api.GET("/parents/{id}/{res:(?:students|appointments|payments)}", func(c buffalo.Context) error {
+		api.GET("/parents/{id}/{res:(?:students|appointments|payments|notifications)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Parent{})
 		})
 		api.POST("/parents/{id}/{res:(?:students)}", createNestedResource)
 
 		api.Resource("/teachers", TeachersResource{})
-		api.GET("/teachers/{id}/{res:(?:classes|appointments)}", func(c buffalo.Context) error {
+		api.GET("/teachers/{id}/{res:(?:classes|appointments|notifications)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Teacher{})
 		})
 		api.POST("/teachers/{id}/{res:(?:appointments)}", createNestedResource)
 
 		api.Resource("/students", StudentsResource{})
-		api.GET("/students/{id}/{res:(?:parents)}", func(c buffalo.Context) error {
+		api.GET("/students/{id}/{res:(?:parents|grades)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Student{})
 		})
 
@@ -190,8 +190,30 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 
 	resname := strings.Title(c.Param("res"))
 
+	log.Println("RESNAME", resname)
+
+	id := c.Param("id")
+
+	if resname == "Notifications" {
+		if err := tx.Find(baseres, id); err != nil {
+			return apiError(c, "Cannot delete resource. Resource not found",
+				"Not Found", http.StatusNotFound, err)
+		}
+		switch baseres.(type) {
+		case *models.Parent:
+			id = baseres.(*models.Parent).UserID.String()
+		case *models.Teacher:
+			id = baseres.(*models.Teacher).UserID.String()
+		default:
+			log.Println("SUCKA")
+		}
+
+		log.Println("ID SET:", id)
+		baseres = &models.User{}
+	}
+
 	// To find the Parent the parameter parent_id is used.
-	if err := tx.Eager(resname).Find(baseres, c.Param("id")); err != nil {
+	if err := tx.Eager(resname).Find(baseres, id); err != nil {
 		return apiError(c, "Cannot delete resource. Resource not found",
 			"Not Found", http.StatusNotFound, err)
 	}
@@ -218,6 +240,8 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 		val = iface.([]*models.Payment)
 	case []*models.Class:
 		val = iface.([]*models.Class)
+	case []*models.Grade:
+		val = iface.([]*models.Grade)
 	default:
 		log.Println("SUCKA")
 	}
