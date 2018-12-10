@@ -1,17 +1,26 @@
 package authorization
 
 import (
-	"errors"
-	"log"
+	"bytes"
+	"io"
 	"net/http"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/pkg/errors"
 
 	"github.com/casbin/casbin"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/render"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
+	"github.com/google/jsonapi"
 	"github.com/middleware2018-PSS/back2_school/models"
 )
+
+var log = logrus.New()
 
 func isOwner(roleID, rURL, pURL, role string, c *buffalo.DefaultContext) bool {
 	// Get the name of the resource we are accessing
@@ -133,11 +142,42 @@ func New(e *casbin.Enforcer) buffalo.MiddlewareFunc {
 			if res {
 				err = next(c)
 			} else {
-				return c.Error(http.StatusForbidden, errors.New("You are not authorized to do this"))
+				//return c.Error(http.StatusForbidden, errors.New("You are not authorized to do this"))
+				return apiError(c, "You are not authorized to perform this action",
+					"Forbidden", http.StatusForbidden,
+					errors.New("You are not authorized to perform this action"))
 			}
 			return err
 		}
 
 		return fn
+	}
+}
+
+func apiError(c buffalo.Context, title, status string, httpcode int, err error) error {
+	log.Debug("%+v", errors.WithStack(err))
+
+	var ENV = envy.Get("GO_ENV", "development")
+	var r *render.Engine
+	r = render.New(render.Options{
+		DefaultContentType: "application/json",
+	})
+	if ENV == "production" {
+		res := new(bytes.Buffer)
+		jsonapi.MarshalErrors(res, []*jsonapi.ErrorObject{{
+			Title:  title,
+			Detail: err.Error(),
+			Status: status,
+		}})
+		return c.Render(httpcode,
+			r.Func("application/json", customJSONRenderer(res.String())))
+	} else {
+		return errors.WithStack(err)
+	}
+}
+func customJSONRenderer(payload string) func(io.Writer, render.Data) error {
+	return func(w io.Writer, d render.Data) error {
+		_, err := w.Write([]byte(payload))
+		return err
 	}
 }
