@@ -27,6 +27,7 @@ type ParentsResource struct {
 // @Success 200 {array} models.Parent
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /parents [get]
+// @Security ApiKeyAuth
 func (v ParentsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

@@ -53,7 +53,11 @@ var log = logrus.New()
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
+// @host localhost:3000
 // @BasePath /api/v1
 func App() *buffalo.App {
 	if app == nil {
@@ -95,7 +99,7 @@ func App() *buffalo.App {
 		// Setup casbin auth rules
 		model := envy.Get("AUTH_MODEL", "./auth_model.conf")
 		policy := envy.Get("POLICY", "./policy.csv")
-		authEnforcer, err := casbin.NewEnforcerSafe(model, policy)
+		authEnforcer, err := casbin.NewEnforcerSafe(model, policy, false)
 		if err != nil {
 			log.Fatal(err)
 		}
