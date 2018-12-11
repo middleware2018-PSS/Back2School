@@ -16,6 +16,15 @@ import (
 )
 
 // UsersAuth is for users authentication using email/password and generates a JWT token
+// @Summary Login
+// @Description Allows users to login to the platform and obtain a JWT Token
+// @Tags Login
+// @Accept  json
+// @Produce  json
+// @Param Account body models.Login true "account"
+// @Success 200 {string} string
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /login [post]
 func UsersAuth(c buffalo.Context) error {
 	userauth := &models.UserAuth{User: models.User{}}
 	//user := &models.User{}

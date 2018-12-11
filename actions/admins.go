@@ -38,6 +38,7 @@ type AdminsResource struct {
 // @Success 200 {array} models.Admin
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /admins [get]
+// @Security ApiKeyAuth
 func (v AdminsResource) List(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -84,6 +85,7 @@ func (v AdminsResource) List(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /admins/{id} [get]
+// @Security ApiKeyAuth
 func (v AdminsResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -135,6 +137,7 @@ func (v AdminsResource) Show(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /admins [post]
+// @Security ApiKeyAuth
 func (v AdminsResource) Create(c buffalo.Context) error {
 	admin := &models.Admin{}
 
@@ -218,6 +221,7 @@ func (v AdminsResource) Create(c buffalo.Context) error {
 // @Failure 422 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /admins [put]
+// @Security ApiKeyAuth
 func (v AdminsResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -280,6 +284,7 @@ func (v AdminsResource) Update(c buffalo.Context) error {
 // @Failure 404 {object} jsonapi.ErrorObject
 // @Failure 500 {object} jsonapi.ErrorObject
 // @Router /admins/{id} [delete]
+// @Security ApiKeyAuth
 func (v AdminsResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)

@@ -15,6 +15,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Login is used for swagger login endpoint
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 // UserAuth is a wrapper around User used for authentication
 type UserAuth struct {
 	User
