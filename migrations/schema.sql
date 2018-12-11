@@ -16,6 +16,23 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: hour; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.hour AS ENUM (
+    '09',
+    '10',
+    '11',
+    '12',
+    '14',
+    '15',
+    '16'
+);
+
+
+ALTER TYPE public.hour OWNER TO postgres;
+
+--
 -- Name: role; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -44,6 +61,23 @@ CREATE TYPE public.subject AS ENUM (
 
 
 ALTER TYPE public.subject OWNER TO postgres;
+
+--
+-- Name: weekday; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.weekday AS ENUM (
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+);
+
+
+ALTER TYPE public.weekday OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -269,6 +303,23 @@ CREATE TABLE public.teachers_classes (
 ALTER TABLE public.teachers_classes OWNER TO postgres;
 
 --
+-- Name: timetables; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.timetables (
+    id uuid NOT NULL,
+    subject public.subject NOT NULL,
+    hour public.hour NOT NULL,
+    weekday public.weekday NOT NULL,
+    class_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.timetables OWNER TO postgres;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -401,6 +452,14 @@ ALTER TABLE ONLY public.teachers_classes
 
 ALTER TABLE ONLY public.teachers
     ADD CONSTRAINT teachers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: timetables timetables_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.timetables
+    ADD CONSTRAINT timetables_pkey PRIMARY KEY (id);
 
 
 --
@@ -580,6 +639,14 @@ ALTER TABLE ONLY public.teachers_classes
 
 ALTER TABLE ONLY public.teachers
     ADD CONSTRAINT teachers_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: timetables timetables_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.timetables
+    ADD CONSTRAINT timetables_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

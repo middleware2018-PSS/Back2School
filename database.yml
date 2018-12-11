@@ -3,7 +3,7 @@ development:
   database: back2_school_development
   user: postgres
   password: postgres
-  host: db
+  host: localhost
   pool: 5
 
 test:
