@@ -76,6 +76,16 @@ func (v TimetablesResource) List(c buffalo.Context) error {
 
 // Show gets the data for one Timetable. This function is mapped to
 // the path GET /timetables/{timetable_id}
+// @Summary Get a timetable
+// @Description Get a single timetable and its relationships
+// @Tags Timetables
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Timetable
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /timetables/{id} [get]
+// @Security ApiKeyAuth
 func (v TimetablesResource) Show(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -112,6 +122,18 @@ func (v TimetablesResource) New(c buffalo.Context) error {
 
 // Create adds a Timetable to the DB. This function is mapped to the
 // path POST /timetables
+// @Summary Create a timetable
+// @Description Create a timetable from the payload
+// @Tags Timetables
+// @Accept  json
+// @Produce  json
+// @Param Timetable body models.Timetable true "Timetable payload"
+// @Success 200 {object} models.Timetable
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /timetables [post]
+// @Security ApiKeyAuth
 func (v TimetablesResource) Create(c buffalo.Context) error {
 	// Allocate an empty Timetable
 	timetable := &models.Timetable{}
@@ -183,6 +205,18 @@ func (v TimetablesResource) Edit(c buffalo.Context) error {
 
 // Update changes a Timetable in the DB. This function is mapped to
 // the path PUT /timetables/{timetable_id}
+// @Summary Update a timetable
+// @Description Update a timetable from the payload
+// @Tags Timetables
+// @Accept  json
+// @Produce  json
+// @Param Timetable body models.Timetable true "Timetable payload"
+// @Success 200 {object} models.Timetable
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 422 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /timetables [put]
+// @Security ApiKeyAuth
 func (v TimetablesResource) Update(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -238,6 +272,17 @@ func (v TimetablesResource) Update(c buffalo.Context) error {
 
 // Destroy deletes a Timetable from the DB. This function is mapped
 // to the path DELETE /timetables/{timetable_id}
+// @Summary Delete a timetable
+// @Description Delete a timetable
+// @Tags Timetables
+// @Accept  json
+// @Produce  json
+// @Param  id path int true "Timetable ID" Format(uuid)
+// @Success 204 {object} models.Timetable
+// @Failure 404 {object} jsonapi.ErrorObject
+// @Failure 500 {object} jsonapi.ErrorObject
+// @Router /timetables/{id} [delete]
+// @Security ApiKeyAuth
 func (v TimetablesResource) Destroy(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
