@@ -1,0 +1,10 @@
+create_table("timetables") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("subject", "subject", {})
+	t.Column("hour", "hour", {})
+	t.Column("weekday", "weekday", {})
+	t.Column("class_id", "uuid", {})
+	t.ForeignKey("class_id", {"classes": ["id"]}, {
+        "on_delete": "CASCADE",
+        "on_update": "CASCADE"})
+}

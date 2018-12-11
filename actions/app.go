@@ -138,7 +138,7 @@ func App() *buffalo.App {
 		})
 
 		api.Resource("/classes", ClassesResource{})
-		api.GET("/classes/{id}/{res:(?:students|teachers)}", func(c buffalo.Context) error {
+		api.GET("/classes/{id}/{res:(?:students|teachers|timetables)}", func(c buffalo.Context) error {
 			return getLists(c, &models.Class{})
 		})
 
@@ -155,6 +155,9 @@ func App() *buffalo.App {
 		})
 
 		api.POST("/payments/{payment_id}/pay", FakePay)
+
+		api.Resource("/timetables", TimetablesResource{})
+
 		api.GET("{all:.*}", func(c buffalo.Context) error {
 			return apiError(c, "Route does not exist", "Not Found",
 				http.StatusNotFound, errors.New("Route does not exist"))
@@ -248,6 +251,8 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 		val = iface.([]*models.Class)
 	case []*models.Grade:
 		val = iface.([]*models.Grade)
+	case []*models.Timetable:
+		val = iface.([]*models.Timetable)
 	default:
 		log.Println("SUCKA")
 	}

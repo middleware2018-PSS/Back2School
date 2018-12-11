@@ -1,0 +1,15 @@
+{
+  "data": {
+    "type": "timetables",
+    "attributes": {
+      "weekday": "Monday",
+      "hour": "09",
+      "subject": "Math"
+    },
+    "relationships": {
+      "class": {
+        "data": { "type": "classes", "id": "9fb78d1e-bc6a-4615-9e0b-665b021b39c6" }
+      }
+    }
+  }
+}
