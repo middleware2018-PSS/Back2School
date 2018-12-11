@@ -70,6 +70,11 @@ var _ = grift.Namespace("db", func() {
 				return err
 			}
 
+			// Create timetables
+			if err := createTimetables(tx); err != nil {
+				return err
+			}
+
 			return nil
 		})
 	})
