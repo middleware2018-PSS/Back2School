@@ -6,6 +6,11 @@ ENV GO111MODULE=on
 RUN mkdir -p $GOPATH/src/github.com/middleware2018-PSS/back2_school
 WORKDIR $GOPATH/src/github.com/middleware2018-PSS/back2_school
 
+# Workaround to let Docker cache dependencies with go modules
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 ADD . .
 #RUN dep ensure
 RUN buffalo build --static -o /bin/app
