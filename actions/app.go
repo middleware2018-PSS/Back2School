@@ -15,8 +15,8 @@ import (
 	contenttype "github.com/gobuffalo/mw-contenttype"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
-	tokenauth "github.com/gobuffalo/mw-tokenauth"
 	"github.com/gobuffalo/pop"
+	tokenauth "github.com/middleware2018-PSS/back2_school/middleware/authentication"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/unrolled/secure"
@@ -159,6 +159,18 @@ func App() *buffalo.App {
 		api.Resource("/timetables", TimetablesResource{})
 
 		api.GET("{all:.*}", func(c buffalo.Context) error {
+			return apiError(c, "Route does not exist", "Not Found",
+				http.StatusNotFound, errors.New("Route does not exist"))
+		})
+		api.POST("{all:.*}", func(c buffalo.Context) error {
+			return apiError(c, "Route does not exist", "Not Found",
+				http.StatusNotFound, errors.New("Route does not exist"))
+		})
+		api.PUT("{all:.*}", func(c buffalo.Context) error {
+			return apiError(c, "Route does not exist", "Not Found",
+				http.StatusNotFound, errors.New("Route does not exist"))
+		})
+		api.DELETE("{all:.*}", func(c buffalo.Context) error {
 			return apiError(c, "Route does not exist", "Not Found",
 				http.StatusNotFound, errors.New("Route does not exist"))
 		})
