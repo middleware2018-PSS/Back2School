@@ -2,6 +2,8 @@ package actions
 
 import (
 	"database/sql"
+	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -37,11 +39,9 @@ func UsersAuth(c buffalo.Context) error {
 
 	// Helper function to handle bad attempts
 	bad := func() error {
-		c.Set("user", userauth)
 		verrs := validate.NewErrors()
-		verrs.Add("Login", "Invalid email or password.")
-		c.Set("errors", verrs.Errors)
-		return c.Render(422, r.Auto(c, verrs))
+		return apiError(c, "Invalid email or password", "Unprocessable Entity",
+			http.StatusUnprocessableEntity, verrs)
 	}
 
 	// Fetch the user from the DB with the email
@@ -52,7 +52,8 @@ func UsersAuth(c buffalo.Context) error {
 			// Couldn't find an user with the supplied email address.
 			return bad()
 		}
-		return errors.WithStack(err)
+		return apiError(c, "Internal error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
 	// Confirm that the password matches the hashed password from the db
@@ -73,7 +74,8 @@ func UsersAuth(c buffalo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(secretKey))
 
-	return c.Render(200, r.Auto(c, tokenString))
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(fmt.Sprintf("{ \"token\": \"%s\" }", tokenString))))
 }
 
 func oneWeek() time.Duration {
