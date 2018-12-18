@@ -42,10 +42,18 @@ func (v ParentsResource) List(c buffalo.Context) error {
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
-	// Retrieve all Parents from the DB
-	if err := q.All(parents); err != nil {
-		return apiError(c, "Internal Error", "Internal Server Error",
-			http.StatusInternalServerError, err)
+	if c.Param("name") != "" {
+		// Filter parents by name
+		if err := q.Where("name = (?)", c.Param("name")).All(parents); err != nil {
+			return apiError(c, "Internal Error", "Internal Server Error",
+				http.StatusInternalServerError, err)
+		}
+	} else {
+		// Retrieve all Parents from the DB
+		if err := q.All(parents); err != nil {
+			return apiError(c, "Internal Error", "Internal Server Error",
+				http.StatusInternalServerError, err)
+		}
 	}
 
 	// Add the paginator to the context so it can be used in the template.

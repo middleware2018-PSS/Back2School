@@ -53,11 +53,20 @@ func (v UsersResource) List(c buffalo.Context) error {
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
-	// Retrieve all Users from the DB
-	if err := q.Select("id", "created_at", "updated_at", "email", "role").
-		All(users); err != nil {
-		return apiError(c, "Internal Error", "Internal Server Error",
-			http.StatusInternalServerError, err)
+	if c.Param("role") != "" {
+		// Retrieve all Users with certain role from the DB
+		if err := q.Where("role = (?)", c.Param("role")).Select("id", "created_at", "updated_at", "email", "role").
+			All(users); err != nil {
+			return apiError(c, "Internal Error", "Internal Server Error",
+				http.StatusInternalServerError, err)
+		}
+	} else {
+		// Retrieve all Users from the DB
+		if err := q.Select("id", "created_at", "updated_at", "email", "role").
+			All(users); err != nil {
+			return apiError(c, "Internal Error", "Internal Server Error",
+				http.StatusInternalServerError, err)
+		}
 	}
 
 	// Add the paginator to the context so it can be used in the template.
