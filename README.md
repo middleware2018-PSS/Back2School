@@ -1,35 +1,27 @@
-# Back2School REST API
+# Back2School REST API [![Go Report Card](https://goreportcard.com/badge/github.com/middleware2018-PSS/Back2School)](https://goreportcard.com/report/github.com/middleware2018-PSS/Back2School)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/middleware2018-PSS/Back2School)](https://goreportcard.com/report/github.com/middleware2018-PSS/Back2School)
+RESTful API for a high school system written in [Go](https://golang.org/) using the [Buffalo](https://gobuffalo.io/) framework following the [JSON:API](https://jsonapi.org/) spec
 
-## Database Setup
+## Starting the application
 
-It looks like you chose to set up your application using a postgres database! Fantastic!
+#### Development mode
+```
+make rundb
+make initdb
+buffalo dev
+```
 
-The first thing you need to do is open up the "database.yml" file and edit it to use the correct usernames, passwords, hosts, etc... that are appropriate for your environment.
+#### Production mode
+```
+make up
+```
 
-You will also need to make sure that **you** start/install the database of your choice. Buffalo **won't** install and start postgres for you.
-
-### Create Your Databases
-
-Ok, so you've edited the "database.yml" file and started postgres, now Buffalo can create the databases in that file for you:
-
-	$ buffalo db create -a
-
-## Starting the Application
-
-Buffalo ships with a command that will watch your application and automatically rebuild the Go binary and any assets for you. To do that run the "buffalo dev" command:
-
-	$ buffalo dev
-
-If you point your browser to [http://127.0.0.1:3000](http://127.0.0.1:3000) you should see a "Welcome to Buffalo!" page.
-
-**Congratulations!** You now have your Buffalo application up and running.
-
-## What Next?
-
-We recommend you heading over to [http://gobuffalo.io](http://gobuffalo.io) and reviewing all of the great documentation there.
-
-Good luck!
-
-[Powered by Buffalo](http://gobuffalo.io)
+## Tools and libraries used
+- [Go](https://golang.org/)
+- [Buffalo](https://gobuffalo.io/)
+- [Pop](https://github.com/gobuffalo/pop)
+- [PostgreSQL](https://www.postgresql.org/)
+- [JSON:API](https://github.com/google/jsonapi)
+- [Casbin](https://casbin.org/)
+- [JWT](https://jwt.io/)
+- [Docker](https://www.docker.com/)
