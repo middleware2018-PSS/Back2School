@@ -156,6 +156,30 @@ func (v NotificationsResource) Create(c buffalo.Context) error {
 			http.StatusInternalServerError, errors.New("no transaction found"))
 	}
 
+	bulkRole := c.Param("role")
+
+	// Bulk notifications
+	if bulkRole != "" {
+		switch bulkRole {
+		case "parent":
+			if err := notifyParents(tx, notification); err != nil {
+				return apiError(c, "Error notifying parents",
+					"Internal Server Error", http.StatusInternalServerError, err)
+			}
+		case "teacher":
+			if err := notifyTeachers(tx, notification); err != nil {
+				return apiError(c, "Error notifying teachers",
+					"Internal Server Error", http.StatusInternalServerError, err)
+			}
+		case "all":
+			if err := notifyAll(tx, notification); err != nil {
+				return apiError(c, "Error notifying all",
+					"Internal Server Error", http.StatusInternalServerError, err)
+			}
+		default:
+		}
+	}
+
 	// Create and save the notification
 	verrs, err := tx.ValidateAndCreate(notification)
 	if err != nil {
@@ -323,4 +347,38 @@ func (v NotificationsResource) Destroy(c buffalo.Context) error {
 	// Redirect to the notifications index page
 	return c.Render(204, r.Func("application/json",
 		customJSONRenderer("")))
+}
+
+func notifyParents(tx *pop.Connection, n *models.Notification) error {
+	users := &models.Users{}
+
+	// Retrieve all parent Users
+	if err := tx.Where("role = (?)", "parent").
+		Select("id", "created_at", "updated_at", "email", "role").
+		All(users); err != nil {
+		return errors.New("Error notifying parents")
+	}
+	n.Users = *users
+	return nil
+}
+
+func notifyTeachers(tx *pop.Connection, n *models.Notification) error {
+	users := &models.Users{}
+
+	// Retrieve all parent Users
+	if err := tx.Where("role = (?)", "teacher").
+		Select("id", "created_at", "updated_at", "email", "role").
+		All(users); err != nil {
+		return errors.New("Error notifying parents")
+	}
+	n.Users = *users
+	return nil
+}
+
+func notifyAll(tx *pop.Connection, n *models.Notification) error {
+	notifyParents(tx, n)
+	parents := n.Users
+	notifyTeachers(tx, n)
+	n.Users = append(n.Users, parents...)
+	return nil
 }
