@@ -2,20 +2,21 @@
   "data": {
     "type": "appointments",
     "attributes": {
-      "time": "2018-11-27T11:30:00Z"
+      "time": "2018-11-27T11:30:00Z",
+      "status": "Confirmed"
     },
     "relationships": {
       "parents": {
         "data": [
-            { "type": "parents", "id": "88373356-9100-4ec1-a22d-3c4d40a979ef" },
-            { "type": "parents", "id": "25f4bb5c-88c2-4cd3-893a-8d3800f80262" }
+            { "type": "parents", "id": "9e4a1345-d034-4584-a213-2810f3de9e53" },
+            { "type": "parents", "id": "d9067444-4427-44d5-96f6-bdcd507be171" }
         ]
       },
       "teacher": {
-        "data": { "type": "teachers", "id": "13a965fd-ee04-43b0-9ed7-95e45fa5c1ef" }
+        "data": { "type": "teachers", "id": "cf5646a4-bad5-41af-95af-aa96d4e2c1c4" }
       },
       "student": {
-        "data": { "type": "students", "id": "9f5bbb40-89ac-4389-8c93-b67eff45866b" }
+        "data": { "type": "students", "id": "dac3d741-eb5c-4fc3-a982-652f7d9bb5a7" }
       }
     }
   }

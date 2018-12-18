@@ -17,6 +17,7 @@ type Appointment struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at" jsonapi:"attr,created_at,iso8601"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at" jsonapi:"attr,updated_at,iso8601"`
 	Time      time.Time `json:"time" db:"time" jsonapi:"attr,time,iso8601"`
+	Status    string    `json:"status" db:"status" jsonapi:"attr,status"`
 	Teacher   *Teacher  `belongs_to:"teacher" jsonapi:"relation,teacher,omitempty"`
 	TeacherID uuid.UUID `db:"teacher_id"`
 	Parents   []*Parent `many_to_many:"parents_appointments" jsonapi:"relation,parents,omitempty"`

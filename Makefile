@@ -1,7 +1,7 @@
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help rundb initdb resetdb stopdb psql 
+.PHONY: help rundb initdb resetdb stopdb psql up down
 
 help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -33,3 +33,9 @@ psql: ## Run psql in a separate container
 
 doc: ## Run swaggo to recreate the swagger documentation
 	swag init -g actions/app.go
+
+up: ## Build containters and start docker compose
+	docker-compose build && docker-compose up
+
+down: ## Stop docker compose and delete containers
+	docker-compose down

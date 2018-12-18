@@ -3,6 +3,7 @@ create_table("appointments") {
 	t.Column("teacher_id", "uuid", {})
 	t.Column("student_id", "uuid", {})
 	t.Column("time", "datetime", {})
+	t.Column("status", "appointment_status", {})
 	t.ForeignKey("teacher_id", {"teachers": ["id"]}, {
         "on_delete": "cascade",
         "on_update": "cascade"})

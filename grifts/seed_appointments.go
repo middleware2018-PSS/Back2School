@@ -20,6 +20,7 @@ var appointment *models.Appointment = &models.Appointment{
 	CreatedAt: time.Now(),
 	UpdatedAt: time.Now(),
 	Time:      parseDate("2018-12-27T11:30:00Z"),
+	Status:    "Confirmed",
 	Parents:   []*models.Parent{johnDoe, abbieWilliams},
 	Teacher:   paulaMiller,
 	Student:   lisaDoe,

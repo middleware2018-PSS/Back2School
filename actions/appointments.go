@@ -144,6 +144,9 @@ func (v AppointmentsResource) Create(c buffalo.Context) error {
 			"Internal Server Error", http.StatusInternalServerError, err)
 	}
 
+	// Set the initial status as Pending
+	appointment.Status = "Pending"
+
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {

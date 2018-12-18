@@ -16,6 +16,19 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: appointment_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.appointment_status AS ENUM (
+    'Pending',
+    'Confirmed',
+    'Canceled'
+);
+
+
+ALTER TYPE public.appointment_status OWNER TO postgres;
+
+--
 -- Name: hour; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -109,6 +122,7 @@ CREATE TABLE public.appointments (
     teacher_id uuid NOT NULL,
     student_id uuid NOT NULL,
     "time" timestamp without time zone NOT NULL,
+    status public.appointment_status NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
