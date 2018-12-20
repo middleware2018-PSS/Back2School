@@ -79,5 +79,15 @@ func (t Teacher) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 			"user": fmt.Sprintf("http://%s/users/%s", APIUrl, t.UserID.String()),
 		}
 	}
+	if relation == "classes" {
+		return &jsonapi.Links{
+			"classes": fmt.Sprintf("http://%s/teachers/%s/classes", APIUrl, t.ID.String()),
+		}
+	}
+	if relation == "appointments" {
+		return &jsonapi.Links{
+			"appointments": fmt.Sprintf("http://%s/teachers/%s/appointments", APIUrl, t.ID.String()),
+		}
+	}
 	return nil
 }

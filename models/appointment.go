@@ -79,7 +79,7 @@ func (a Appointment) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 	}
 	if relation == "teacher" {
 		return &jsonapi.Links{
-			"teacher": fmt.Sprintf("http://%s/teacher/%s", APIUrl, a.Teacher.ID.String()),
+			"teacher": fmt.Sprintf("http://%s/teachers/%s", APIUrl, a.Teacher.ID.String()),
 		}
 	}
 	return nil

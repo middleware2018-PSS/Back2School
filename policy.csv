@@ -1,4 +1,5 @@
 p, .*, /api/v1/login, (POST)
+p, .*, /api/v1/self, (GET)
 
 p, parent, /api/v1/parents/:id/, (GET)|(PUT)
 p, parent, /api/v1/students/:id/, (GET)|(PUT)

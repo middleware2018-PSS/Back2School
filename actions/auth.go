@@ -86,8 +86,7 @@ func oneWeek() time.Duration {
 func roleID(userauth *models.UserAuth) string {
 	switch userauth.Role {
 	case "admin":
-		//claims["role_id"] = userauth.User.Admin.ID.String()
-		return userauth.ID.String()
+		return userauth.User.Admin.ID.String()
 	case "parent":
 		return userauth.User.Parent.ID.String()
 	case "teacher":
@@ -119,6 +118,11 @@ func loadUser(tx *pop.Connection, userauth *models.UserAuth) error {
 		err = tx.Where("user_id = ?", userauth.User.ID).
 			First(teacher)
 		userauth.User.Teacher = teacher
+	case "admin":
+		admin := &models.Admin{}
+		err = tx.Where("user_id = ?", userauth.User.ID).
+			First(admin)
+		userauth.User.Admin = admin
 	default: // default is admin
 		//admin := &models.Admin{}
 		//err = tx.Where("user_id = ?", userauth.User.ID).

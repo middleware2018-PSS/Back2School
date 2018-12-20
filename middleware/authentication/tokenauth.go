@@ -74,9 +74,9 @@ func New(options Options) buffalo.MiddlewareFunc {
 			// if error validating jwt token, return with status unauthorized
 			if err != nil {
 				//return c.Error(http.StatusUnauthorized, err)
-				return apiError(c, "You are not authenticated",
+				return apiError(c, "The token provided is not valid",
 					"Forbidden", http.StatusUnauthorized,
-					errors.New("You are not authenticated"))
+					errors.New("The token provided is not valid"))
 			}
 
 			// set the claims as context parameter.

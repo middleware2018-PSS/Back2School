@@ -98,7 +98,8 @@ func (v StudentsResource) Show(c buffalo.Context) error {
 	student := &models.Student{}
 
 	// To find the Student the parameter student_id is used.
-	if err := tx.Eager("Parents").Find(student, c.Param("student_id")); err != nil {
+	if err := tx.Eager("Parents", "Grades", "Class").
+		Find(student, c.Param("student_id")); err != nil {
 		return apiError(c, "The requested resource cannot be found",
 			"Not Found", http.StatusNotFound, err)
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/casbin/casbin"
 	"github.com/cippaciong/jsonapi"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/buffalo"
 	popmw "github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -109,6 +110,7 @@ func App() *buffalo.App {
 
 		api.GET("/", listRoutes)
 		api.POST("/login", UsersAuth)
+		api.GET("/self", getSelf)
 		api.Resource("/users", UsersResource{})
 		api.GET("/users/{id}/{res:(?:notifications)}", func(c buffalo.Context) error {
 			return getLists(c, &models.User{})
@@ -201,6 +203,71 @@ func listRoutes(c buffalo.Context) error {
 	return c.Render(200, r.JSON(routesList))
 }
 
+func getSelf(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return apiError(c, "No transaction found", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("No transaction found"))
+	}
+
+	// Get role and roleID from jwt claims
+	var role, roleID string
+	if claims, ok := c.Value("claims").(jwt.MapClaims); ok {
+		role = claims["role"].(string)
+		roleID = claims["role_id"].(string)
+	} else {
+		return apiError(c, "Token Error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("Token Error"))
+	}
+
+	res := new(bytes.Buffer)
+	switch role {
+	case "admin":
+		baseres := &models.Admin{}
+		if err := tx.Eager().Find(baseres, roleID); err != nil {
+			return apiError(c, "Resource not found",
+				"Not Found", http.StatusNotFound, err)
+		}
+		baseres.User.Password = ""
+		err := jsonapi.MarshalPayload(res, baseres)
+		if err != nil {
+			return apiError(c, "Internal Error preparing the response payload",
+				"Internal Server Error", http.StatusInternalServerError, err)
+		}
+	case "parent":
+		baseres := &models.Parent{}
+		if err := tx.Eager().Find(baseres, roleID); err != nil {
+			return apiError(c, "Resource not found",
+				"Not Found", http.StatusNotFound, err)
+		}
+		baseres.User.Password = ""
+		err := jsonapi.MarshalPayload(res, baseres)
+		if err != nil {
+			return apiError(c, "Internal Error preparing the response payload",
+				"Internal Server Error", http.StatusInternalServerError, err)
+		}
+	case "teacher":
+		baseres := &models.Teacher{}
+		if err := tx.Eager().Find(baseres, roleID); err != nil {
+			return apiError(c, "Resource not found",
+				"Not Found", http.StatusNotFound, err)
+		}
+		baseres.User.Password = ""
+		err := jsonapi.MarshalPayload(res, baseres)
+		if err != nil {
+			return apiError(c, "Internal Error preparing the response payload",
+				"Internal Server Error", http.StatusInternalServerError, err)
+		}
+	default:
+		return apiError(c, "Token Error", "Internal Server Error",
+			http.StatusInternalServerError, errors.New("Token Error"))
+	}
+
+	return c.Render(200, r.Func("application/json",
+		customJSONRenderer(res.String())))
+}
+
 func getLists(c buffalo.Context, baseres interface{}) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -235,7 +302,7 @@ func getLists(c buffalo.Context, baseres interface{}) error {
 
 	// To find the Parent the parameter parent_id is used.
 	if err := tx.Eager(resname).Find(baseres, id); err != nil {
-		return apiError(c, "Cannot delete resource. Resource not found",
+		return apiError(c, "Resource not found",
 			"Not Found", http.StatusNotFound, err)
 	}
 

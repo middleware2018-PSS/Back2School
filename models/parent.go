@@ -93,5 +93,15 @@ func (p Parent) JSONAPIRelationshipLinks(relation string) *jsonapi.Links {
 			"students": fmt.Sprintf("http://%s/parents/%s/students", APIUrl, p.ID.String()),
 		}
 	}
+	if relation == "appointments" {
+		return &jsonapi.Links{
+			"appointments": fmt.Sprintf("http://%s/parents/%s/appointments", APIUrl, p.ID.String()),
+		}
+	}
+	if relation == "payments" {
+		return &jsonapi.Links{
+			"payments": fmt.Sprintf("http://%s/parents/%s/payments", APIUrl, p.ID.String()),
+		}
+	}
 	return nil
 }
